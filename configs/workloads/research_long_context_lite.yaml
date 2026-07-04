@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "workload_id": "research_long_context_lite",
+  "prompt_template_id": "research_core-long-context-lite-chat-v1",
+  "seed": 5104,
+  "prompt": "Context: Project Inferno compares LLM serving engines only when the model revision, tokenizer revision, precision, quantization, hardware, context limit, sampling controls, cache policy, warmup policy, retry policy, prompt template, workload seed, and artifact validator all match. The platform stores manifests before requests, raw stream evidence, request traces, telemetry, summaries, checksums, validation records, and report inputs. Public claims must stay limited to the tested hardware, model, workload, and configuration envelope. Task: summarize the context in three concise sentences and name two controls that would block a strict comparison if changed.",
+  "arrival_model": "closed_loop",
+  "cache_state": "cold_per_run",
+  "warmup": {
+    "requests": 0
+  },
+  "measurement": {
+    "requests": 1,
+    "max_runtime_seconds": 450
+  },
+  "sampling": {
+    "temperature": 0,
+    "top_p": 1,
+    "max_tokens": 128
+  },
+  "retry_policy": "none",
+  "failure_policy": "fail_run"
+}

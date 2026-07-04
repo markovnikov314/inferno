@@ -3,8 +3,8 @@
   "study_id": "tensorrtllm_t4_smoke",
   "study_type": "engine_configuration_comparison",
   "engines": ["tensorrtllm_t4"],
-  "phase": "P10",
-  "environment_block_id": "p10_tensorrtllm_t4_profile_block_001",
+  "run_family": "engine_configuration",
+  "environment_block_id": "engine_configuration_tensorrtllm_t4_profile_block_001",
   "run_order_seed": 101011,
   "run_order": [
     {"engine": "tensorrtllm_t4", "repeat_index": 1}

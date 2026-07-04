@@ -11,15 +11,15 @@ STUDY ?= configs/study/vllm_smoke.yaml
 RUN ?=
 MODE ?=
 RUNS ?=
-PLAN ?= configs/planner/p7_capacity.yaml
-ROUTER ?= configs/router/p8_offline_router.yaml
-HARDENING ?= configs/hardening/p9_hardening.yaml
+PLAN ?= configs/planner/capacity.yaml
+ROUTER ?= configs/router/offline_router.yaml
+HARDENING ?= configs/hardening/repo_audit.yaml
 
 doctor:
-	uv run python -m inferno.cli doctor --output .inferno/evidence/preflight/doctor.json
+	uv run python -m inferno.cli doctor --output artifacts/preflight/doctor.json
 
 doctor-gpu:
-	uv run python -m inferno.cli doctor-gpu --output .inferno/evidence/preflight/doctor-gpu.json
+	uv run python -m inferno.cli doctor-gpu --output artifacts/preflight/doctor-gpu.json
 
 up:
 	uv run python -m inferno.cli up --engine "$(ENGINE)" --model "$(MODEL)"

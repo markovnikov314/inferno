@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "workload_id": "research_decode_heavy",
+  "prompt_template_id": "research_core-decode-heavy-chat-v1",
+  "seed": 5103,
+  "prompt": "Write a numbered checklist for auditing an LLM serving benchmark. Include exactly eight items and keep each item specific.",
+  "arrival_model": "closed_loop",
+  "cache_state": "cold_per_run",
+  "warmup": {
+    "requests": 0
+  },
+  "measurement": {
+    "requests": 1,
+    "max_runtime_seconds": 600
+  },
+  "sampling": {
+    "temperature": 0,
+    "top_p": 1,
+    "max_tokens": 192
+  },
+  "retry_policy": "none",
+  "failure_policy": "fail_run"
+}

@@ -1,4 +1,4 @@
-"""P3 vLLM smoke study and static report."""
+"""Study execution and static report rendering."""
 
 from __future__ import annotations
 
@@ -41,7 +41,7 @@ class StudyConfig(BaseModel):
     study_type: str = "single_engine_smoke"
     engine: EngineName | None = None
     engines: list[EngineName] | None = None
-    phase: Literal["P3", "P4", "P5", "P6", "P10", "P11"] | None = None
+    run_family: Literal["smoke_study", "strict_comparison", "research_core", "deployment_profile", "engine_configuration", "dashboard"] | None = None
     environment_block_id: str | None = None
     run_order_seed: int | None = None
     run_order: list[RunOrderItem] = Field(default_factory=list)
@@ -58,14 +58,14 @@ class StudyConfig(BaseModel):
             return [self.engine]
         return []
 
-    def run_phase(self) -> Literal["P3", "P4", "P5", "P6", "P10", "P11"]:
-        if self.phase:
-            return self.phase
+    def resolved_run_family(self) -> Literal["smoke_study", "strict_comparison", "research_core", "deployment_profile", "engine_configuration", "dashboard"]:
+        if self.run_family:
+            return self.run_family
         if self.study_type == "engine_configuration_comparison":
-            return "P10"
+            return "engine_configuration"
         if self.study_type == "deployment_profile_comparison":
-            return "P6"
-        return "P4" if self.study_type == "strict_engine_comparison" else "P3"
+            return "deployment_profile"
+        return "strict_comparison" if self.study_type == "strict_engine_comparison" else "smoke_study"
 
 
 def load_study_config(path: Path) -> StudyConfig:
@@ -97,7 +97,7 @@ def run_study(
             config_path=Path(config.workload_config),
             project_root=project_root,
             env=env,
-            phase=config.run_phase(),
+            run_family=config.resolved_run_family(),
             study_id=config.study_id,
             repeat_index=repeat_index,
             telemetry_cadence_seconds=config.telemetry_cadence_seconds,
@@ -824,7 +824,7 @@ def _render_strict_compare_report(report_inputs: Mapping[str, Any]) -> str:
 
 def _render_deployment_profile_report(report_inputs: Mapping[str, Any]) -> str:
     study_name = report_inputs.get("study_id") or (
-        "P10" if report_inputs.get("mode") == "engine-configuration" else "P6"
+        "engine_configuration" if report_inputs.get("mode") == "engine-configuration" else "deployment_profile"
     )
     response = report_inputs["response_equivalence"]
     lines = [

@@ -78,7 +78,7 @@ def run_real_result(
     config_path: Path,
     project_root: Path,
     env: Mapping[str, str],
-    phase: str = "P2",
+    run_family: str = "single_run",
     study_id: str | None = None,
     repeat_index: int | None = None,
     telemetry_cadence_seconds: float | None = None,
@@ -86,21 +86,21 @@ def run_real_result(
     config = _config(project_root, engine)
     workload = _load_workload(project_root / config_path)
     model = resolve_model(None, config)
-    if phase in {"P3", "P4", "P5", "P6", "P10", "P11"}:
+    if run_family in {"smoke_study", "strict_comparison", "research_core", "deployment_profile", "engine_configuration", "dashboard"}:
         slug = (study_id or workload["workload_id"]).removeprefix(f"{engine}_").replace("_", "-")
         repeat = f"r{repeat_index or 1:02d}"
-        run_id = f"{phase.lower()}-{engine}-{slug}-{repeat}-{_stamp()}-{uuid.uuid4().hex[:8]}"
+        run_id = f"{run_family.lower()}-{engine}-{slug}-{repeat}-{_stamp()}-{uuid.uuid4().hex[:8]}"
     else:
-        run_id = f"p2-{engine}-{_stamp()}-{uuid.uuid4().hex[:8]}"
+        run_id = f"single_run-{engine}-{_stamp()}-{uuid.uuid4().hex[:8]}"
     run_dir = project_root / RUNS_DIR / run_id
     _mkdirs(run_dir)
 
     launch_args = _launch_args(config, model)
     config, launch_args = _dashboard_runtime_overrides(config, workload, launch_args)
-    manifest = _p2_manifest(
+    manifest = _run_manifest(
         run_id=run_id,
         run_dir=run_dir,
-        phase=phase,
+        run_family=run_family,
         study_id=study_id,
         repeat_index=repeat_index,
         config=config,
@@ -302,7 +302,7 @@ def _run_llm_api_once_result(
 def up(*, engine: str, model_arg: str | None, project_root: Path, env: Mapping[str, str]) -> int:
     config = _config(project_root, engine)
     model = resolve_model(model_arg, config)
-    run_id = f"p1-{engine}-{_stamp()}-{uuid.uuid4().hex[:8]}"
+    run_id = f"engine_launch-{engine}-{_stamp()}-{uuid.uuid4().hex[:8]}"
     run_dir = project_root / RUNS_DIR / run_id
     _mkdirs(run_dir)
 
@@ -545,11 +545,11 @@ def resolve_model(model_arg: str | None, config: Mapping[str, Any]) -> ModelPin:
     )
 
 
-def _p2_manifest(
+def _run_manifest(
     *,
     run_id: str,
     run_dir: Path,
-    phase: str,
+    run_family: str,
     study_id: str | None,
     repeat_index: int | None,
     config: Mapping[str, Any],
@@ -559,7 +559,7 @@ def _p2_manifest(
     project_root: Path,
 ) -> contract.RunManifest:
     artifacts = contract.default_artifacts(str(config["engine"]))
-    if phase in {"P3", "P4", "P5", "P6", "P10", "P11"}:
+    if run_family in {"smoke_study", "strict_comparison", "research_core", "deployment_profile", "engine_configuration", "dashboard"}:
         artifacts = contract.ArtifactPaths.model_validate(
             artifacts.model_dump(mode="json")
             | {
@@ -573,7 +573,7 @@ def _p2_manifest(
     manifest = contract.RunManifest(
         schema_version=contract.SCHEMA_VERSION,
         contract_version=contract.CONTRACT_VERSION,
-        phase=phase,
+        run_family=run_family,
         run_id=run_id,
         study_id=study_id,
         repeat_index=repeat_index,
@@ -773,7 +773,7 @@ def _base_manifest(
 ) -> dict[str, Any]:
     return {
         "schema_version": 1,
-        "phase": "P1",
+        "run_family": "engine_launch",
         "run_id": run_id,
         "status": "PLANNED",
         "created_at": _iso_now(),

@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "plan_id": "capacity_strict_t4_qwen35_2b",
+  "traffic": {
+    "request_rate_rps": 8,
+    "arrival_model": "poisson",
+    "prompt_tokens": {
+      "p50": 1024,
+      "p95": 2048
+    },
+    "output_tokens": {
+      "p50": 256,
+      "p95": 512
+    },
+    "shared_prefix_pct": 0,
+    "burst_factor": 1.0
+  },
+  "slo": {
+    "percentile": "p95",
+    "ttft_ms": 1200,
+    "e2e_ms": 6000
+  },
+  "candidate_scope": {
+    "environment_fingerprint": "research_core_block_001",
+    "comparison_type": "strict"
+  },
+  "pricing": {
+    "source": "user_provided",
+    "checked_at": "2026-07-02T00:00:00Z"
+  },
+  "evidence_studies": [
+    "artifacts/studies/research_smoke/latest.json",
+    "artifacts/studies/research_interactive/latest.json",
+    "artifacts/studies/research_decode_heavy/latest.json",
+    "artifacts/studies/research_long_context_lite/latest.json",
+    "artifacts/studies/research_structured_output_lite/latest.json"
+  ],
+  "artifacts_dir": "artifacts/planner/capacity_strict_t4_qwen35_2b"
+}

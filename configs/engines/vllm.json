@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "engine": "vllm",
-  "container_name": "inferno-p1-vllm",
+  "container_name": "inferno-engine_launch-vllm",
   "port": 8000,
   "image": "vllm/vllm-openai@sha256:251eba5cc7c12fed0b75da22a9240e582b1c9e39f6fbc064f86781b963bd814f",
   "image_tag_hint": "latest pushed 2026-06-29",

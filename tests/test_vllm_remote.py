@@ -133,7 +133,7 @@ def test_ollama_config_declares_deployment_profile() -> None:
     assert config["served_model_name"] == "qwen3.5:2b"
     assert config["model"]["weight_format"] == "ollama"
     assert launch_args == []
-    assert "docker exec inferno-p11-ollama ollama pull qwen3.5:2b" in up_script
+    assert "docker exec inferno-dashboard-ollama ollama pull qwen3.5:2b" in up_script
 
 
 def test_up_script_persists_compile_caches() -> None:

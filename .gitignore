@@ -7,7 +7,5 @@ __pycache__/
 artifacts/*
 !artifacts/.gitkeep
 !artifacts/README.md
-!.inferno/contracts/artifacts/
-!.inferno/contracts/artifacts/**
 web/dashboard/node_modules/
 web/dashboard/dist/

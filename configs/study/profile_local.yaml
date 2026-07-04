@@ -3,8 +3,8 @@
   "study_id": "profile_local",
   "study_type": "deployment_profile_comparison",
   "engines": ["llamacpp"],
-  "phase": "P6",
-  "environment_block_id": "p6_deployment_profile_block_001",
+  "run_family": "deployment_profile",
+  "environment_block_id": "deployment_profile_block_001",
   "run_order_seed": 66101,
   "run_order": [
     {"engine": "llamacpp", "repeat_index": 1}

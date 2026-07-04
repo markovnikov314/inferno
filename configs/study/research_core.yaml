@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "release_id": "research_core_v1",
+  "study_type": "research_core_release",
+  "mode": "redacted",
+  "required_workload_families": [
+    "smoke",
+    "interactive",
+    "decode-heavy",
+    "long-context-lite",
+    "structured-output-lite"
+  ],
+  "studies": [
+    {
+      "study_id": "research_smoke",
+      "config": "configs/study/research_smoke.yaml",
+      "workload_family": "smoke"
+    },
+    {
+      "study_id": "research_interactive",
+      "config": "configs/study/research_interactive.yaml",
+      "workload_family": "interactive"
+    },
+    {
+      "study_id": "research_decode_heavy",
+      "config": "configs/study/research_decode_heavy.yaml",
+      "workload_family": "decode-heavy"
+    },
+    {
+      "study_id": "research_long_context_lite",
+      "config": "configs/study/research_long_context_lite.yaml",
+      "workload_family": "long-context-lite"
+    },
+    {
+      "study_id": "research_structured_output_lite",
+      "config": "configs/study/research_structured_output_lite.yaml",
+      "workload_family": "structured-output-lite"
+    }
+  ],
+  "docs": [
+    "docs/methodology.md",
+    "docs/limitations.md",
+    "docs/reproducibility.md",
+    "docs/privacy-and-redaction.md"
+  ],
+  "artifacts_dir": "artifacts/releases/research_core_v1"
+}

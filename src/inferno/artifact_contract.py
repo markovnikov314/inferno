@@ -1,4 +1,4 @@
-"""P2 artifact contract and validator."""
+"""Artifact contract and validator."""
 
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ import pyarrow.parquet as pq
 SCHEMA_VERSION = 1
 CONTRACT_VERSION = "inferno.artifacts.v1"
 PARSER_VERSION = "inferno.sse.v1"
-P3_SUMMARY_FIELDS = {
+STUDY_SUMMARY_FIELDS = {
     "itl_ms",
     "completion_tokens",
     "completion_tokens_missing_reason",
@@ -132,7 +132,7 @@ class ShutdownEvidence(ContractModel):
 class RunManifest(ContractModel):
     schema_version: Literal[1]
     contract_version: Literal["inferno.artifacts.v1"]
-    phase: Literal["P2", "P3", "P4", "P5", "P6", "P10", "P11"]
+    run_family: Literal["single_run", "smoke_study", "strict_comparison", "research_core", "deployment_profile", "engine_configuration", "dashboard"]
     run_id: str = Field(min_length=1)
     study_id: str | None = None
     repeat_index: int | None = Field(default=None, ge=1)
@@ -514,14 +514,14 @@ def validate_run(run_dir: Path, *, write: bool = True) -> ValidationResult:
             recomputed = recompute_summary(run_dir, manifest)
             summary_dump = summary.model_dump(mode="json")
             recomputed_dump = recomputed.model_dump(mode="json")
-            if manifest.phase == "P2":
-                for field in P3_SUMMARY_FIELDS - set(summary_payload):
+            if manifest.run_family == "single_run":
+                for field in STUDY_SUMMARY_FIELDS - set(summary_payload):
                     recomputed_dump[field] = summary_dump[field]
             if summary_dump != recomputed_dump:
                 errors.append("summary does not recompute from raw artifacts")
         except Exception as exc:
             errors.append(f"invalid summary: {exc}")
-        errors.extend(_validate_p3_artifacts(run_dir, manifest))
+        errors.extend(_validate_study_artifacts(run_dir, manifest))
         errors.extend(_validate_checksums(run_dir, manifest))
 
     result = ValidationResult(run_id=run_id, ok=not errors, errors=errors)
@@ -752,18 +752,18 @@ def _validate_manifest(run_dir: Path, manifest: RunManifest) -> list[str]:
     return errors
 
 
-def _validate_p3_artifacts(run_dir: Path, manifest: RunManifest) -> list[str]:
-    if manifest.phase not in {"P3", "P4", "P5", "P6", "P10", "P11"}:
+def _validate_study_artifacts(run_dir: Path, manifest: RunManifest) -> list[str]:
+    if manifest.run_family not in {"smoke_study", "strict_comparison", "research_core", "deployment_profile", "engine_configuration", "dashboard"}:
         return []
     errors = []
     if not manifest.study_id:
-        errors.append(f"{manifest.phase} manifest missing study_id")
+        errors.append(f"{manifest.run_family} manifest missing study_id")
     if manifest.repeat_index is None:
-        errors.append(f"{manifest.phase} manifest missing repeat_index")
+        errors.append(f"{manifest.run_family} manifest missing repeat_index")
     if not manifest.artifacts.request_trace_parquet:
-        errors.append(f"{manifest.phase} manifest missing request_trace.parquet path")
+        errors.append(f"{manifest.run_family} manifest missing request_trace.parquet path")
     if not manifest.artifacts.telemetry_parquet:
-        errors.append(f"{manifest.phase} manifest missing telemetry.parquet path")
+        errors.append(f"{manifest.run_family} manifest missing telemetry.parquet path")
     if manifest.artifacts.request_trace_parquet:
         try:
             table = pq.read_table(artifact_path(run_dir, manifest.artifacts.request_trace_parquet))

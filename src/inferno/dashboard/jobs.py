@@ -73,7 +73,7 @@ class DashboardJobManager:
         ssh_target: str | None = None,
     ) -> DashboardJob:
         job = DashboardJob(
-            job_id=f"p11-dashboard-{uuid.uuid4().hex[:8]}",
+            job_id=f"dashboard-dashboard-{uuid.uuid4().hex[:8]}",
             requested_engines=engines,
             parameters=dict(parameters),
             created_at=datetime.now(UTC).isoformat(),
@@ -148,7 +148,7 @@ class DashboardJobManager:
                     config_path=workload_path.relative_to(self.project_root),
                     project_root=self.project_root,
                     env=env,
-                    phase="P11",
+                    run_family="dashboard",
                     study_id=f"dashboard_{requested}",
                     repeat_index=1,
                     telemetry_cadence_seconds=0.5,
@@ -209,7 +209,7 @@ class DashboardJobManager:
         model_profile = str(job.parameters.get("model_profile") or "qwen35-2b")
         kv_cache_mode = str(job.parameters.get("kv_cache_mode") or "engine_default")
         payload["workload_id"] = f"dashboard_{requested}"
-        payload["prompt_template_id"] = "p11-dashboard-chat-v1"
+        payload["prompt_template_id"] = "dashboard-dashboard-chat-v1"
         payload["prompt"] = "\n---\n".join(batch_prompts)
         payload["cache_state"] = "warm_after_warmup" if warmup_requests else "cold_per_run"
         payload["request_rate_rps"] = request_rate_rps

@@ -21,7 +21,7 @@ def test_load_strict_study_config_records_engine_order() -> None:
 
     assert config.study_id == "strict_interactive"
     assert config.allowed_engines() == ["vllm", "sglang"]
-    assert config.run_phase() == "P4"
+    assert config.resolved_run_family() == "strict_comparison"
     assert [(item.engine, item.repeat_index) for item in config.run_order] == [
         ("sglang", 1),
         ("vllm", 1),
@@ -32,54 +32,54 @@ def test_load_strict_study_config_records_engine_order() -> None:
     ]
 
 
-def test_load_p5_study_config_uses_p5_phase() -> None:
-    config = study.load_study_config(Path("configs/study/p5_smoke.yaml"))
+def test_load_research_study_config_uses_research_family() -> None:
+    config = study.load_study_config(Path("configs/study/research_smoke.yaml"))
 
-    assert config.study_id == "p5_smoke"
-    assert config.run_phase() == "P5"
+    assert config.study_id == "research_smoke"
+    assert config.resolved_run_family() == "research_core"
     assert config.low_sample_completed_requests == 3
 
 
-def test_load_profile_study_config_uses_p6_phase() -> None:
+def test_load_profile_study_config_uses_deployment_family() -> None:
     config = study.load_study_config(Path("configs/study/profile_local.yaml"))
 
     assert config.study_id == "profile_local"
     assert config.allowed_engines() == ["llamacpp"]
-    assert config.run_phase() == "P6"
+    assert config.resolved_run_family() == "deployment_profile"
 
 
-def test_load_tensorrtllm_study_config_uses_p10_phase() -> None:
+def test_load_tensorrtllm_study_config_uses_engine_configuration_family() -> None:
     config = study.load_study_config(Path("configs/study/tensorrtllm_smoke.yaml"))
 
     assert config.study_id == "tensorrtllm_smoke"
     assert config.allowed_engines() == ["tensorrtllm"]
-    assert config.run_phase() == "P10"
+    assert config.resolved_run_family() == "engine_configuration"
 
 
-def test_load_tensorrtllm_t4_study_config_uses_p10_phase() -> None:
+def test_load_tensorrtllm_t4_study_config_uses_engine_configuration_family() -> None:
     config = study.load_study_config(Path("configs/study/tensorrtllm_t4_smoke.yaml"))
 
     assert config.study_id == "tensorrtllm_t4_smoke"
     assert config.allowed_engines() == ["tensorrtllm_t4"]
-    assert config.run_phase() == "P10"
+    assert config.resolved_run_family() == "engine_configuration"
 
 
-def test_load_ollama_study_config_uses_p11_phase() -> None:
+def test_load_ollama_study_config_uses_dashboard_family() -> None:
     config = study.load_study_config(Path("configs/study/ollama_smoke.yaml"))
 
     assert config.study_id == "ollama_smoke"
     assert config.allowed_engines() == ["ollama"]
-    assert config.run_phase() == "P11"
+    assert config.resolved_run_family() == "dashboard"
 
 
-def test_run_study_invokes_three_p3_repeats(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_run_study_invokes_three_smoke_repeats(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     config_path = _study_config(tmp_path)
     calls = []
 
     def fake_run_real_result(**kwargs: object) -> vllm_remote.RunRealResult:
         calls.append(kwargs)
         repeat = int(kwargs["repeat_index"])
-        run_dir = tmp_path / "artifacts" / "runs" / f"p3-vllm-smoke-r{repeat:02d}-test"
+        run_dir = tmp_path / "artifacts" / "runs" / f"smoke_study-vllm-smoke-r{repeat:02d}-test"
         return vllm_remote.RunRealResult(0, run_dir.name, run_dir, True)
 
     monkeypatch.setattr(vllm_remote, "run_real_result", fake_run_real_result)
@@ -87,16 +87,16 @@ def test_run_study_invokes_three_p3_repeats(tmp_path: Path, monkeypatch: pytest.
     assert study.run_study(engine="vllm", config_path=config_path, project_root=tmp_path, env={}) == 0
 
     assert [call["repeat_index"] for call in calls] == [1, 2, 3]
-    assert {call["phase"] for call in calls} == {"P3"}
+    assert {call["run_family"] for call in calls} == {"smoke_study"}
     latest = json.loads((tmp_path / "artifacts/studies/vllm_smoke/latest.json").read_text())
     assert [run["run_id"] for run in latest["runs"]] == [
-        "p3-vllm-smoke-r01-test",
-        "p3-vllm-smoke-r02-test",
-        "p3-vllm-smoke-r03-test",
+        "smoke_study-vllm-smoke-r01-test",
+        "smoke_study-vllm-smoke-r02-test",
+        "smoke_study-vllm-smoke-r03-test",
     ]
 
 
-def test_run_strict_study_uses_p4_and_declared_order(
+def test_run_strict_study_uses_declared_order(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -107,21 +107,21 @@ def test_run_strict_study_uses_p4_and_declared_order(
         calls.append(kwargs)
         repeat = int(kwargs["repeat_index"])
         engine = str(kwargs["engine"])
-        run_dir = tmp_path / "artifacts" / "runs" / f"p4-{engine}-strict-r{repeat:02d}-test"
+        run_dir = tmp_path / "artifacts" / "runs" / f"strict_comparison-{engine}-strict-r{repeat:02d}-test"
         return vllm_remote.RunRealResult(0, run_dir.name, run_dir, True)
 
     monkeypatch.setattr(vllm_remote, "run_real_result", fake_run_real_result)
 
     assert study.run_study(engine="sglang", config_path=config_path, project_root=tmp_path, env={}) == 0
 
-    assert [call["phase"] for call in calls] == ["P4", "P4", "P4"]
+    assert [call["run_family"] for call in calls] == ["strict_comparison", "strict_comparison", "strict_comparison"]
     assert [call["repeat_index"] for call in calls] == [1, 2, 3]
     latest = json.loads((tmp_path / "artifacts/studies/strict_interactive/latest.json").read_text())
     assert [run["planned_order_index"] for run in latest["runs"]] == [1, 4, 5]
     assert {run["engine"] for run in latest["runs"]} == {"sglang"}
 
 
-def test_run_deployment_profile_study_uses_p6(
+def test_run_deployment_profile_study_uses_family(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -130,7 +130,7 @@ def test_run_deployment_profile_study_uses_p6(
 
     def fake_run_real_result(**kwargs: object) -> vllm_remote.RunRealResult:
         calls.append(kwargs)
-        run_dir = tmp_path / "artifacts" / "runs" / "p6-llamacpp-profile-local-r01-test"
+        run_dir = tmp_path / "artifacts" / "runs" / "deployment_profile-llamacpp-profile-local-r01-test"
         return vllm_remote.RunRealResult(0, run_dir.name, run_dir, True)
 
     monkeypatch.setattr(vllm_remote, "run_real_result", fake_run_real_result)
@@ -140,12 +140,12 @@ def test_run_deployment_profile_study_uses_p6(
         == 0
     )
 
-    assert [call["phase"] for call in calls] == ["P6"]
+    assert [call["run_family"] for call in calls] == ["deployment_profile"]
     latest = json.loads((tmp_path / "artifacts/studies/profile_local/latest.json").read_text())
     assert latest["runs"][0]["engine"] == "llamacpp"
 
 
-def test_run_engine_configuration_study_uses_p10(
+def test_run_engine_configuration_study_uses_family(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -154,7 +154,7 @@ def test_run_engine_configuration_study_uses_p10(
 
     def fake_run_real_result(**kwargs: object) -> vllm_remote.RunRealResult:
         calls.append(kwargs)
-        run_dir = tmp_path / "artifacts" / "runs" / "p10-tensorrtllm-smoke-r01-test"
+        run_dir = tmp_path / "artifacts" / "runs" / "engine_configuration-tensorrtllm-smoke-r01-test"
         return vllm_remote.RunRealResult(0, run_dir.name, run_dir, True)
 
     monkeypatch.setattr(vllm_remote, "run_real_result", fake_run_real_result)
@@ -166,12 +166,12 @@ def test_run_engine_configuration_study_uses_p10(
         == 0
     )
 
-    assert [call["phase"] for call in calls] == ["P10"]
+    assert [call["run_family"] for call in calls] == ["engine_configuration"]
     latest = json.loads((tmp_path / "artifacts/studies/tensorrtllm_smoke/latest.json").read_text())
     assert latest["runs"][0]["engine"] == "tensorrtllm"
 
 
-def test_run_ollama_deployment_profile_study_uses_p11(
+def test_run_ollama_deployment_profile_study_uses_dashboard_family(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -180,7 +180,7 @@ def test_run_ollama_deployment_profile_study_uses_p11(
 
     def fake_run_real_result(**kwargs: object) -> vllm_remote.RunRealResult:
         calls.append(kwargs)
-        run_dir = tmp_path / "artifacts" / "runs" / "p11-ollama-smoke-r01-test"
+        run_dir = tmp_path / "artifacts" / "runs" / "dashboard-ollama-smoke-r01-test"
         return vllm_remote.RunRealResult(0, run_dir.name, run_dir, True)
 
     monkeypatch.setattr(vllm_remote, "run_real_result", fake_run_real_result)
@@ -190,13 +190,13 @@ def test_run_ollama_deployment_profile_study_uses_p11(
         == 0
     )
 
-    assert [call["phase"] for call in calls] == ["P11"]
+    assert [call["run_family"] for call in calls] == ["dashboard"]
     latest = json.loads((tmp_path / "artifacts/studies/ollama_smoke/latest.json").read_text())
     assert latest["runs"][0]["engine"] == "ollama"
 
 
 def test_report_writes_provenance_and_low_sample(tmp_path: Path) -> None:
-    run_dir = _valid_p3_run(tmp_path)
+    run_dir = _valid_study_run(tmp_path)
     config_path = _study_config(tmp_path)
     artifacts_dir = tmp_path / "artifacts/studies/vllm_smoke"
     artifacts_dir.mkdir(parents=True)
@@ -227,10 +227,10 @@ def test_report_writes_provenance_and_low_sample(tmp_path: Path) -> None:
 
 
 def test_compare_strict_writes_report_for_matching_controls(tmp_path: Path) -> None:
-    vllm_run = _valid_p3_run(tmp_path, phase="P4", study_id="strict_interactive", engine="vllm")
-    sglang_run = _valid_p3_run(
+    vllm_run = _valid_study_run(tmp_path, run_family="strict_comparison", study_id="strict_interactive", engine="vllm")
+    sglang_run = _valid_study_run(
         tmp_path,
-        phase="P4",
+        run_family="strict_comparison",
         study_id="strict_interactive",
         engine="sglang",
         repeat_index=1,
@@ -255,10 +255,10 @@ def test_compare_strict_writes_report_for_matching_controls(tmp_path: Path) -> N
 
 
 def test_compare_strict_refuses_control_mismatch(tmp_path: Path) -> None:
-    vllm_run = _valid_p3_run(tmp_path, phase="P4", study_id="strict_interactive", engine="vllm")
-    sglang_run = _valid_p3_run(
+    vllm_run = _valid_study_run(tmp_path, run_family="strict_comparison", study_id="strict_interactive", engine="vllm")
+    sglang_run = _valid_study_run(
         tmp_path,
-        phase="P4",
+        run_family="strict_comparison",
         study_id="strict_interactive",
         engine="sglang",
         cache_state="warm_after_warmup",
@@ -276,10 +276,10 @@ def test_compare_strict_refuses_control_mismatch(tmp_path: Path) -> None:
 
 
 def test_compare_strict_refuses_llamacpp(tmp_path: Path) -> None:
-    vllm_run = _valid_p3_run(tmp_path, phase="P4", study_id="strict_interactive", engine="vllm")
-    llamacpp_run = _valid_p3_run(
+    vllm_run = _valid_study_run(tmp_path, run_family="strict_comparison", study_id="strict_interactive", engine="vllm")
+    llamacpp_run = _valid_study_run(
         tmp_path,
-        phase="P6",
+        run_family="deployment_profile",
         study_id="profile_local",
         engine="llamacpp",
     )
@@ -298,10 +298,10 @@ def test_compare_strict_refuses_llamacpp(tmp_path: Path) -> None:
 
 
 def test_compare_strict_refuses_ollama(tmp_path: Path) -> None:
-    vllm_run = _valid_p3_run(tmp_path, phase="P4", study_id="strict_interactive", engine="vllm")
-    ollama_run = _valid_p3_run(
+    vllm_run = _valid_study_run(tmp_path, run_family="strict_comparison", study_id="strict_interactive", engine="vllm")
+    ollama_run = _valid_study_run(
         tmp_path,
-        phase="P11",
+        run_family="dashboard",
         study_id="ollama_smoke",
         engine="ollama",
     )
@@ -320,16 +320,16 @@ def test_compare_strict_refuses_ollama(tmp_path: Path) -> None:
 
 
 def test_compare_deployment_profile_writes_banner_and_differences(tmp_path: Path) -> None:
-    vllm_run = _valid_p3_run(tmp_path, phase="P5", study_id="p5_smoke", engine="vllm")
-    sglang_run = _valid_p3_run(
+    vllm_run = _valid_study_run(tmp_path, run_family="research_core", study_id="research_smoke", engine="vllm")
+    sglang_run = _valid_study_run(
         tmp_path,
-        phase="P5",
-        study_id="p5_smoke",
+        run_family="research_core",
+        study_id="research_smoke",
         engine="sglang",
     )
-    llamacpp_run = _valid_p3_run(
+    llamacpp_run = _valid_study_run(
         tmp_path,
-        phase="P6",
+        run_family="deployment_profile",
         study_id="profile_local",
         engine="llamacpp",
     )
@@ -356,10 +356,10 @@ def test_compare_deployment_profile_writes_banner_and_differences(tmp_path: Path
 
 
 def test_compare_deployment_profile_accepts_ollama(tmp_path: Path) -> None:
-    vllm_run = _valid_p3_run(tmp_path, phase="P5", study_id="p5_smoke", engine="vllm")
-    ollama_run = _valid_p3_run(
+    vllm_run = _valid_study_run(tmp_path, run_family="research_core", study_id="research_smoke", engine="vllm")
+    ollama_run = _valid_study_run(
         tmp_path,
-        phase="P11",
+        run_family="dashboard",
         study_id="ollama_smoke",
         engine="ollama",
     )
@@ -381,10 +381,10 @@ def test_compare_deployment_profile_accepts_ollama(tmp_path: Path) -> None:
 
 
 def test_compare_engine_configuration_writes_banner_and_differences(tmp_path: Path) -> None:
-    vllm_run = _valid_p3_run(tmp_path, phase="P5", study_id="p5_smoke", engine="vllm")
-    trt_run = _valid_p3_run(
+    vllm_run = _valid_study_run(tmp_path, run_family="research_core", study_id="research_smoke", engine="vllm")
+    trt_run = _valid_study_run(
         tmp_path,
-        phase="P10",
+        run_family="engine_configuration",
         study_id="tensorrtllm_smoke",
         engine="tensorrtllm",
     )
@@ -412,10 +412,10 @@ def test_compare_engine_configuration_writes_banner_and_differences(tmp_path: Pa
 
 
 def test_strict_report_validation_rejects_missing_low_sample_label(tmp_path: Path) -> None:
-    vllm_run = _valid_p3_run(tmp_path, phase="P4", study_id="strict_interactive", engine="vllm")
-    sglang_run = _valid_p3_run(
+    vllm_run = _valid_study_run(tmp_path, run_family="strict_comparison", study_id="strict_interactive", engine="vllm")
+    sglang_run = _valid_study_run(
         tmp_path,
-        phase="P4",
+        run_family="strict_comparison",
         study_id="strict_interactive",
         engine="sglang",
     )
@@ -433,10 +433,10 @@ def test_strict_report_validation_rejects_missing_low_sample_label(tmp_path: Pat
 
 
 def test_strict_report_validation_rejects_unresolved_artifact_path(tmp_path: Path) -> None:
-    vllm_run = _valid_p3_run(tmp_path, phase="P4", study_id="strict_interactive", engine="vllm")
-    sglang_run = _valid_p3_run(
+    vllm_run = _valid_study_run(tmp_path, run_family="strict_comparison", study_id="strict_interactive", engine="vllm")
+    sglang_run = _valid_study_run(
         tmp_path,
-        phase="P4",
+        run_family="strict_comparison",
         study_id="strict_interactive",
         engine="sglang",
     )
@@ -465,7 +465,7 @@ def test_usage_only_stream_chunks_are_safe() -> None:
 
 
 def test_telemetry_nulls_require_reasons(tmp_path: Path) -> None:
-    run_dir, manifest = _p3_manifest(tmp_path)
+    run_dir, manifest = _study_manifest(tmp_path)
     with pytest.raises(ValueError, match="missing reason"):
         contract.write_telemetry_parquet(
             run_dir,
@@ -481,18 +481,18 @@ def test_telemetry_nulls_require_reasons(tmp_path: Path) -> None:
         )
 
 
-def _valid_p3_run(
+def _valid_study_run(
     tmp_path: Path,
     *,
-    phase: str = "P3",
+    run_family: str = "smoke_study",
     study_id: str = "vllm_smoke",
     engine: str = "vllm",
     repeat_index: int = 1,
     cache_state: str = "cold_per_run",
 ) -> Path:
-    run_dir, manifest = _p3_manifest(
+    run_dir, manifest = _study_manifest(
         tmp_path,
-        phase=phase,
+        run_family=run_family,
         study_id=study_id,
         engine=engine,
         repeat_index=repeat_index,
@@ -514,16 +514,16 @@ def _valid_p3_run(
     return run_dir
 
 
-def _p3_manifest(
+def _study_manifest(
     tmp_path: Path,
     *,
-    phase: str = "P3",
+    run_family: str = "smoke_study",
     study_id: str = "vllm_smoke",
     engine: str = "vllm",
     repeat_index: int = 1,
     cache_state: str = "cold_per_run",
 ) -> tuple[Path, contract.RunManifest]:
-    run_dir = tmp_path / f"artifacts/runs/{phase.lower()}-{engine}-{study_id}-r{repeat_index:02d}-test"
+    run_dir = tmp_path / f"artifacts/runs/{run_family.lower()}-{engine}-{study_id}-r{repeat_index:02d}-test"
     run_dir.mkdir(parents=True)
     artifacts = contract.ArtifactPaths.model_validate(
         contract.default_artifacts(engine).model_dump(mode="json")
@@ -532,7 +532,7 @@ def _p3_manifest(
     manifest = contract.RunManifest(
         schema_version=1,
         contract_version=contract.CONTRACT_VERSION,
-        phase=phase,
+        run_family=run_family,
         run_id=run_dir.name,
         study_id=study_id,
         repeat_index=repeat_index,
@@ -543,7 +543,7 @@ def _p3_manifest(
         manifest_written_perf_counter_ns=900_000_000,
         first_request_perf_counter_ns=1_000_000_000,
         run_dir=str(run_dir),
-        source=contract.SourceInfo(branch="phase/03-vllm-smoke", commit="abc", dirty=True),
+        source=contract.SourceInfo(branch="run_family/03-vllm-smoke", commit="abc", dirty=True),
         engine=contract.EngineInfo(
             name=engine,
             image=_image(engine),
@@ -562,7 +562,7 @@ def _p3_manifest(
         ),
         workload=contract.WorkloadInfo(
             workload_id="ollama_smoke" if engine == "ollama" else "smoke_real",
-            prompt_template_id="p11-ollama-smoke-chat-v1" if engine == "ollama" else "smoke-chat-v1",
+            prompt_template_id="dashboard-ollama-smoke-chat-v1" if engine == "ollama" else "smoke-chat-v1",
             seed=123,
             prompt_sha256=contract.sha256_text("hello"),
             prompt_chars=5,
@@ -894,8 +894,8 @@ def _profile_study_config(tmp_path: Path) -> Path:
             "study_id": "profile_local",
             "study_type": "deployment_profile_comparison",
             "engines": ["llamacpp"],
-            "phase": "P6",
-            "environment_block_id": "p6_block",
+            "run_family": "deployment_profile",
+            "environment_block_id": "deployment_profile_block",
             "run_order_seed": 1,
             "run_order": [{"engine": "llamacpp", "repeat_index": 1}],
             "workload_config": "configs/workloads/profile_local.yaml",
@@ -917,8 +917,8 @@ def _tensorrt_study_config(tmp_path: Path) -> Path:
             "study_id": "tensorrtllm_smoke",
             "study_type": "engine_configuration_comparison",
             "engines": ["tensorrtllm"],
-            "phase": "P10",
-            "environment_block_id": "p10_block",
+            "run_family": "engine_configuration",
+            "environment_block_id": "engine_configuration_block",
             "run_order_seed": 1,
             "run_order": [{"engine": "tensorrtllm", "repeat_index": 1}],
             "workload_config": "configs/workloads/tensorrtllm_smoke.yaml",
@@ -940,8 +940,8 @@ def _ollama_study_config(tmp_path: Path) -> Path:
             "study_id": "ollama_smoke",
             "study_type": "deployment_profile_comparison",
             "engines": ["ollama"],
-            "phase": "P11",
-            "environment_block_id": "p11_block",
+            "run_family": "dashboard",
+            "environment_block_id": "dashboard_block",
             "run_order_seed": 1,
             "run_order": [{"engine": "ollama", "repeat_index": 1}],
             "workload_config": "configs/workloads/ollama_smoke.yaml",

@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "workload_id": "ollama_smoke",
-  "prompt_template_id": "p11-ollama-smoke-chat-v1",
+  "prompt_template_id": "dashboard-ollama-smoke-chat-v1",
   "seed": 11001,
   "prompt": "Explain local model serving in one concise sentence.",
   "request_rate_rps": 0.1,

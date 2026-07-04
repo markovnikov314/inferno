@@ -1,4 +1,4 @@
-"""P9 repository hardening checks."""
+"""Repository audit checks."""
 
 from __future__ import annotations
 
@@ -31,10 +31,10 @@ class ReportSnapshot(HardeningModel):
 
 
 class RegressionConfig(HardeningModel):
-    p5_release_package: str
-    p6_deployment_profile_report_inputs: str
-    p7_planner_latest: str
-    p8_router_latest: str
+    research_release_package: str
+    deployment_profile_report_inputs: str
+    capacity_planner_latest: str
+    router_replay_latest: str
     strict_refusal_runs: list[str] = Field(default_factory=list)
 
 
@@ -102,7 +102,7 @@ def run_hardening_check(
 
     result = {
         "schema_version": 1,
-        "phase": "P9",
+        "run_family": "repository_audit",
         "hardening_id": config.hardening_id,
         "generated_at": datetime.now(UTC).isoformat(),
         "status": _overall_status(checks),
@@ -114,7 +114,7 @@ def run_hardening_check(
             "gpu_smoke": f"{config.artifacts_dir}/gpu_smoke.json",
         },
         "limitations": [
-            "P9 adds hardening evidence only; no live router, dashboard, adapter, or benchmark runner.",
+            "Repository audit only; no live router, dashboard, adapter, or benchmark runner.",
             "Dependency audit is offline and lockfile-based; it is not a vulnerability database scan.",
             "GPU smoke is a gated host/container preflight, not a new engine readiness claim.",
             "Local private run and compare inputs remain outside public secret-scan scope.",
@@ -332,12 +332,12 @@ def check_dependency_audit(config: HardeningConfig, project_root: Path) -> dict[
 def check_regressions(config: HardeningConfig, project_root: Path) -> dict[str, Any]:
     errors = []
     release_errors = release.validate_release_package(
-        _project_path(project_root, config.regression.p5_release_package)
+        _project_path(project_root, config.regression.research_release_package)
     )
-    errors.extend(f"p5_release: {error}" for error in release_errors)
+    errors.extend(f"research_release: {error}" for error in release_errors)
 
     deployment_inputs = json.loads(
-        _project_path(project_root, config.regression.p6_deployment_profile_report_inputs).read_text(
+        _project_path(project_root, config.regression.deployment_profile_report_inputs).read_text(
             encoding="utf-8-sig"
         )
     )
@@ -345,24 +345,24 @@ def check_regressions(config: HardeningConfig, project_root: Path) -> dict[str, 
         deployment_inputs,
         project_root,
     )
-    errors.extend(f"p6_deployment_profile: {error}" for error in deployment_errors)
+    errors.extend(f"deployment_profile: {error}" for error in deployment_errors)
 
     planner_latest = json.loads(
-        _project_path(project_root, config.regression.p7_planner_latest).read_text(
+        _project_path(project_root, config.regression.capacity_planner_latest).read_text(
             encoding="utf-8-sig"
         )
     )
     router_latest = json.loads(
-        _project_path(project_root, config.regression.p8_router_latest).read_text(
+        _project_path(project_root, config.regression.router_replay_latest).read_text(
             encoding="utf-8-sig"
         )
     )
-    if planner_latest.get("phase") != "P7" or planner_latest.get("compatible_evidence_count") != 30:
-        errors.append("p7_planner: unexpected phase or evidence count")
+    if planner_latest.get("run_family") != "capacity_planning" or planner_latest.get("compatible_evidence_count") != 30:
+        errors.append("capacity_planner: unexpected run_family or evidence count")
     if (router_latest.get("baseline_comparison") or {}).get("status") != "NEGATIVE_RESULT":
-        errors.append("p8_router: negative result is not preserved")
+        errors.append("router_replay: negative result is not preserved")
     if (router_latest.get("leakage_check") or {}).get("status") != "PASS":
-        errors.append("p8_router: leakage check is not PASS")
+        errors.append("router_replay: leakage check is not PASS")
 
     if len(config.regression.strict_refusal_runs) >= 2:
         manifests = [
@@ -374,15 +374,15 @@ def check_regressions(config: HardeningConfig, project_root: Path) -> dict[str, 
             errors.append("strict_refusal: llamacpp was not rejected")
 
     return _check(
-        "p5_p6_p7_p8_regression_baselines",
+        "research_regression_baselines",
         "PASS" if not errors else "FAIL",
-        "P5/P6/P7/P8 regression baselines hold"
+        "research, deployment-profile, capacity-planner, and router-replay baselines hold"
         if not errors
         else "one or more regression baselines failed",
         {
             "errors": errors,
-            "p7_compatible_evidence_count": planner_latest.get("compatible_evidence_count"),
-            "p8_status": (router_latest.get("baseline_comparison") or {}).get("status"),
+            "capacity_compatible_evidence_count": planner_latest.get("compatible_evidence_count"),
+            "router_replay_status": (router_latest.get("baseline_comparison") or {}).get("status"),
         },
     )
 
@@ -409,10 +409,10 @@ def write_browser_preview(
         )
     page = (
         "<!doctype html><html><head><meta charset=\"utf-8\">"
-        "<title>Project Inferno P9 Report Preview</title>"
+        "<title>Project Inferno Repository Audit Preview</title>"
         "<style>body{font-family:Arial,sans-serif;margin:2rem;line-height:1.4}"
         "pre{white-space:pre-wrap;border:1px solid #ccc;padding:1rem}</style>"
-        "</head><body><h1>Project Inferno P9 Report Preview</h1>"
+        "</head><body><h1>Project Inferno Repository Audit Preview</h1>"
         + "".join(sections)
         + "</body></html>\n"
     )
@@ -456,9 +456,9 @@ def check_gpu_smoke(
 
 def render_hardening_report(result: Mapping[str, Any]) -> str:
     lines = [
-        "# P9 Hardening Evidence",
+        "# Repository Audit Evidence",
         "",
-        "P9 HARDENING ONLY - no live router, dashboard, new adapter, or benchmark runner is introduced.",
+        "REPOSITORY AUDIT ONLY - no live router, dashboard, new adapter, or benchmark runner is introduced.",
         "",
         f"Hardening ID: `{result['hardening_id']}`",
         f"Status: `{result['status']}`",

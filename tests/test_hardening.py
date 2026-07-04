@@ -20,9 +20,9 @@ def test_hardening_check_writes_artifacts_with_fake_workspace(tmp_path: Path) ->
         == 0
     )
 
-    output_dir = tmp_path / "artifacts/hardening/p9"
+    output_dir = tmp_path / "artifacts/hardening/repository_audit"
     latest = json.loads((output_dir / "latest.json").read_text())
-    assert latest["phase"] == "P9"
+    assert latest["run_family"] == "repository_audit"
     assert latest["status"] == "PASS_WITH_WARNINGS"
     assert (output_dir / "report.md").exists()
     assert (output_dir / "report_preview.html").exists()
@@ -36,17 +36,17 @@ def test_secret_scan_fails_on_private_pattern(tmp_path: Path) -> None:
     config = hardening.HardeningConfig.model_validate(
         {
             "schema_version": 1,
-            "hardening_id": "p9-test",
+            "hardening_id": "repository_audit-test",
             "required_files": ["pyproject.toml"],
             "schema_snapshot_dir": ".inferno/contracts/artifacts",
             "secret_scan_paths": ["docs"],
             "regression": {
-                "p5_release_package": "release",
-                "p6_deployment_profile_report_inputs": "inputs.json",
-                "p7_planner_latest": "planner.json",
-                "p8_router_latest": "router.json",
+                "research_release_package": "release",
+                "deployment_profile_report_inputs": "inputs.json",
+                "capacity_planner_latest": "planner.json",
+                "router_replay_latest": "router.json",
             },
-            "artifacts_dir": "artifacts/hardening/p9",
+            "artifacts_dir": "artifacts/hardening/repository_audit",
         }
     )
 
@@ -66,7 +66,7 @@ def test_gpu_smoke_writes_redacted_preflight(monkeypatch, tmp_path: Path) -> Non
         }
 
     monkeypatch.setattr(hardening.preflight, "collect_preflight", fake_collect_preflight)
-    output_dir = tmp_path / "artifacts/hardening/p9"
+    output_dir = tmp_path / "artifacts/hardening/repository_audit"
     output_dir.mkdir(parents=True)
 
     target = "person" + "@example" + ".com"
@@ -114,13 +114,13 @@ name = "ruff"
             gguf=True,
         ),
     )
-    _write_text(tmp_path / "reports/p5.md", "Study type: strict_engine_comparison.\nLOW_SAMPLE\n")
-    _write_text(tmp_path / "reports/p8.md", "OFFLINE REPLAY ONLY\nNEGATIVE_RESULT\n")
+    _write_text(tmp_path / "reports/research_core.md", "Study type: strict_engine_comparison.\nLOW_SAMPLE\n")
+    _write_text(tmp_path / "reports/router_replay.md", "OFFLINE REPLAY ONLY\nNEGATIVE_RESULT\n")
     _write_json(
-        tmp_path / "artifacts/releases/p5/redacted/manifest.json",
+        tmp_path / "artifacts/releases/research_core/redacted/manifest.json",
         {
             "schema_version": 1,
-            "release_id": "p5-test",
+            "release_id": "research_core-test",
             "mode": "redacted",
             "retention_class": "public_release",
             "required_workload_families": [],
@@ -131,14 +131,14 @@ name = "ruff"
     )
     _write_deployment_profile_inputs(tmp_path)
     _write_json(
-        tmp_path / "artifacts/planner/p7/latest.json",
-        {"schema_version": 1, "phase": "P7", "compatible_evidence_count": 30},
+        tmp_path / "artifacts/planner/capacity_planning/latest.json",
+        {"schema_version": 1, "run_family": "capacity_planning", "compatible_evidence_count": 30},
     )
     _write_json(
-        tmp_path / "artifacts/router/p8/latest.json",
+        tmp_path / "artifacts/router/router_replay/latest.json",
         {
             "schema_version": 1,
-            "phase": "P8",
+            "run_family": "router_replay",
             "baseline_comparison": {"status": "NEGATIVE_RESULT"},
             "leakage_check": {"status": "PASS"},
         },
@@ -148,23 +148,23 @@ name = "ruff"
 
 
 def _write_hardening_config(tmp_path: Path) -> Path:
-    path = tmp_path / "configs/hardening/p9.json"
+    path = tmp_path / "configs/hardening/repository_audit.json"
     _write_json(
         path,
         {
             "schema_version": 1,
-            "hardening_id": "p9-test",
+            "hardening_id": "repository_audit-test",
             "required_files": ["pyproject.toml", "uv.lock"],
             "schema_snapshot_dir": ".inferno/contracts/artifacts",
             "report_snapshots": [
                 {
-                    "id": "p5",
-                    "path": "reports/p5.md",
+                    "id": "research_core",
+                    "path": "reports/research_core.md",
                     "must_contain": ["strict_engine_comparison", "LOW_SAMPLE"],
                 },
                 {
-                    "id": "p8",
-                    "path": "reports/p8.md",
+                    "id": "router_replay",
+                    "path": "reports/router_replay.md",
                     "must_contain": ["OFFLINE REPLAY ONLY", "NEGATIVE_RESULT"],
                 },
             ],
@@ -176,12 +176,12 @@ def _write_hardening_config(tmp_path: Path) -> Path:
             "allowed_runtime_dependencies": ["pydantic", "pyarrow"],
             "allowed_dev_dependencies": ["pytest", "ruff"],
             "regression": {
-                "p5_release_package": "artifacts/releases/p5/redacted",
-                "p6_deployment_profile_report_inputs": "artifacts/compare/deployment/report_inputs.json",
-                "p7_planner_latest": "artifacts/planner/p7/latest.json",
-                "p8_router_latest": "artifacts/router/p8/latest.json",
+                "research_release_package": "artifacts/releases/research_core/redacted",
+                "deployment_profile_report_inputs": "artifacts/compare/deployment/report_inputs.json",
+                "capacity_planner_latest": "artifacts/planner/capacity_planning/latest.json",
+                "router_replay_latest": "artifacts/router/router_replay/latest.json",
             },
-            "artifacts_dir": "artifacts/hardening/p9",
+            "artifacts_dir": "artifacts/hardening/repository_audit",
         },
     )
     return path.relative_to(tmp_path)

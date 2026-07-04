@@ -13,7 +13,7 @@ def test_valid_run_validates_and_schema_snapshots_match(tmp_path: Path) -> None:
 
     assert result.ok, result.errors
     for name, expected in contract.schema_snapshots().items():
-        assert (Path(".inferno/contracts/artifacts") / name).read_text(encoding="utf-8") == expected
+        assert (Path("schemas/artifacts") / name).read_text(encoding="utf-8") == expected
 
 
 @pytest.mark.parametrize(
@@ -40,7 +40,7 @@ def test_corruptions_fail_loudly(tmp_path: Path, corrupt: str, message: str) -> 
 
 
 def test_sglang_run_validates_with_native_stream_artifact(tmp_path: Path) -> None:
-    run_dir = _valid_run(tmp_path, engine="sglang", phase="P4")
+    run_dir = _valid_run(tmp_path, engine="sglang", run_family="strict_comparison")
 
     result = contract.validate_run(run_dir, write=False)
 
@@ -51,7 +51,7 @@ def test_sglang_run_validates_with_native_stream_artifact(tmp_path: Path) -> Non
 
 
 def test_llamacpp_run_validates_with_gguf_profile_fields(tmp_path: Path) -> None:
-    run_dir = _valid_run(tmp_path, engine="llamacpp", phase="P6")
+    run_dir = _valid_run(tmp_path, engine="llamacpp", run_family="deployment_profile")
 
     result = contract.validate_run(run_dir, write=False)
 
@@ -64,7 +64,7 @@ def test_llamacpp_run_validates_with_gguf_profile_fields(tmp_path: Path) -> None
 
 
 def test_tensorrtllm_run_validates_with_expanded_workload_fields(tmp_path: Path) -> None:
-    run_dir = _valid_run(tmp_path, engine="tensorrtllm", phase="P10")
+    run_dir = _valid_run(tmp_path, engine="tensorrtllm", run_family="engine_configuration")
 
     result = contract.validate_run(run_dir, write=False)
 
@@ -79,7 +79,7 @@ def test_tensorrtllm_run_validates_with_expanded_workload_fields(tmp_path: Path)
 
 
 def test_tensorrtllm_t4_run_validates_with_legacy_profile(tmp_path: Path) -> None:
-    run_dir = _valid_run(tmp_path, engine="tensorrtllm_t4", phase="P10")
+    run_dir = _valid_run(tmp_path, engine="tensorrtllm_t4", run_family="engine_configuration")
 
     result = contract.validate_run(run_dir, write=False)
 
@@ -93,7 +93,7 @@ def test_tensorrtllm_t4_run_validates_with_legacy_profile(tmp_path: Path) -> Non
 
 
 def test_ollama_run_validates_as_deployment_profile(tmp_path: Path) -> None:
-    run_dir = _valid_run(tmp_path, engine="ollama", phase="P11")
+    run_dir = _valid_run(tmp_path, engine="ollama", run_family="dashboard")
 
     result = contract.validate_run(run_dir, write=False)
 
@@ -108,7 +108,7 @@ def test_ollama_run_validates_as_deployment_profile(tmp_path: Path) -> None:
 def test_strict_comparison_errors_name_mismatched_control(tmp_path: Path) -> None:
     vllm_manifest = contract.read_manifest(_valid_run(tmp_path / "left"))
     sglang_manifest = contract.read_manifest(
-        _valid_run(tmp_path / "right", engine="sglang", phase="P4", cache_state="warm_after_warmup")
+        _valid_run(tmp_path / "right", engine="sglang", run_family="strict_comparison", cache_state="warm_after_warmup")
     )
 
     errors = contract.strict_comparison_errors([vllm_manifest, sglang_manifest])
@@ -120,7 +120,7 @@ def test_strict_comparison_errors_name_mismatched_control(tmp_path: Path) -> Non
 def test_strict_comparison_errors_reject_llamacpp(tmp_path: Path) -> None:
     vllm_manifest = contract.read_manifest(_valid_run(tmp_path / "left"))
     llamacpp_manifest = contract.read_manifest(
-        _valid_run(tmp_path / "right", engine="llamacpp", phase="P6")
+        _valid_run(tmp_path / "right", engine="llamacpp", run_family="deployment_profile")
     )
 
     errors = contract.strict_comparison_errors([vllm_manifest, llamacpp_manifest])
@@ -131,7 +131,7 @@ def test_strict_comparison_errors_reject_llamacpp(tmp_path: Path) -> None:
 def test_strict_comparison_errors_reject_tensorrtllm(tmp_path: Path) -> None:
     vllm_manifest = contract.read_manifest(_valid_run(tmp_path / "left"))
     trt_manifest = contract.read_manifest(
-        _valid_run(tmp_path / "right", engine="tensorrtllm", phase="P10")
+        _valid_run(tmp_path / "right", engine="tensorrtllm", run_family="engine_configuration")
     )
 
     errors = contract.strict_comparison_errors([vllm_manifest, trt_manifest])
@@ -142,7 +142,7 @@ def test_strict_comparison_errors_reject_tensorrtllm(tmp_path: Path) -> None:
 def test_strict_comparison_errors_reject_tensorrtllm_t4(tmp_path: Path) -> None:
     vllm_manifest = contract.read_manifest(_valid_run(tmp_path / "left"))
     trt_manifest = contract.read_manifest(
-        _valid_run(tmp_path / "right", engine="tensorrtllm_t4", phase="P10")
+        _valid_run(tmp_path / "right", engine="tensorrtllm_t4", run_family="engine_configuration")
     )
 
     errors = contract.strict_comparison_errors([vllm_manifest, trt_manifest])
@@ -153,7 +153,7 @@ def test_strict_comparison_errors_reject_tensorrtllm_t4(tmp_path: Path) -> None:
 def test_strict_comparison_errors_reject_ollama(tmp_path: Path) -> None:
     vllm_manifest = contract.read_manifest(_valid_run(tmp_path / "left"))
     ollama_manifest = contract.read_manifest(
-        _valid_run(tmp_path / "right", engine="ollama", phase="P11")
+        _valid_run(tmp_path / "right", engine="ollama", run_family="dashboard")
     )
 
     errors = contract.strict_comparison_errors([vllm_manifest, ollama_manifest])
@@ -162,7 +162,7 @@ def test_strict_comparison_errors_reject_ollama(tmp_path: Path) -> None:
 
 
 def test_batch_summary_aggregates_multiple_requests(tmp_path: Path) -> None:
-    run_dir = _valid_run(tmp_path, phase="P11")
+    run_dir = _valid_run(tmp_path, run_family="dashboard")
     manifest = contract.read_manifest(run_dir)
     manifest = contract.RunManifest.model_validate(
         manifest.model_dump(mode="json")
@@ -273,22 +273,22 @@ def _valid_run(
     tmp_path: Path,
     *,
     engine: str = "vllm",
-    phase: str = "P2",
+    run_family: str = "single_run",
     cache_state: str = "cold_per_run",
 ) -> Path:
-    run_dir = tmp_path / f"{phase.lower()}-{engine}-test"
+    run_dir = tmp_path / f"{run_family.lower()}-{engine}-test"
     run_dir.mkdir(parents=True)
     artifacts = contract.default_artifacts(engine)
-    if phase in {"P3", "P4", "P5", "P6", "P10", "P11"}:
+    if run_family in {"smoke_study", "strict_comparison", "research_core", "deployment_profile", "engine_configuration", "dashboard"}:
         artifacts = contract.ArtifactPaths.model_validate(
             artifacts.model_dump(mode="json")
             | {"request_trace_parquet": "request_trace.parquet", "telemetry_parquet": "telemetry.parquet"}
         )
     is_trt = engine in {"tensorrtllm", "tensorrtllm_t4"}
-    is_dashboard = phase == "P11"
+    is_dashboard = run_family == "dashboard"
     workload = contract.WorkloadInfo(
         workload_id="ollama_smoke" if engine == "ollama" else "smoke_real",
-        prompt_template_id="p11-ollama-smoke-chat-v1" if engine == "ollama" else "smoke-chat-v1",
+        prompt_template_id="dashboard-ollama-smoke-chat-v1" if engine == "ollama" else "smoke-chat-v1",
         seed=123,
         prompt_sha256=contract.sha256_text("hello"),
         prompt_chars=5,
@@ -324,19 +324,19 @@ def _valid_run(
     manifest = contract.RunManifest(
         schema_version=1,
         contract_version=contract.CONTRACT_VERSION,
-        phase=phase,
+        run_family=run_family,
         study_id=(
             "strict_interactive"
-            if phase == "P4"
+            if run_family == "strict_comparison"
             else "profile_local"
-            if phase == "P6"
+            if run_family == "deployment_profile"
             else "tensorrtllm_smoke"
-            if phase == "P10"
+            if run_family == "engine_configuration"
             else "ollama_smoke"
             if is_dashboard
             else None
         ),
-        repeat_index=1 if phase in {"P4", "P6", "P10", "P11"} else None,
+        repeat_index=1 if run_family in {"strict_comparison", "deployment_profile", "engine_configuration", "dashboard"} else None,
         run_id=run_dir.name,
         status="SUCCEEDED",
         created_at="2026-07-01T00:00:00+00:00",
@@ -345,7 +345,7 @@ def _valid_run(
         manifest_written_perf_counter_ns=900,
         first_request_perf_counter_ns=1000,
         run_dir=str(run_dir),
-        source=contract.SourceInfo(branch="phase/01-vllm-vertical-slice", commit="abc", dirty=True),
+        source=contract.SourceInfo(branch="workflow/vllm-vertical-slice", commit="abc", dirty=True),
         engine=contract.EngineInfo(
             name=engine,
             image=_image(engine),

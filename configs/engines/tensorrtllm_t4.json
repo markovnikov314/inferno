@@ -2,7 +2,7 @@
   "schema_version": 1,
   "engine": "tensorrtllm_t4",
   "run_mode": "llm_api_once",
-  "container_name": "inferno-p10-tensorrtllm-t4",
+  "container_name": "inferno-engine_configuration-tensorrtllm-t4",
   "port": 8092,
   "image": "nvcr.io/nvidia/tritonserver:24.07-trtllm-python-py3@sha256:4aadb77233d5c4e71a0d3ced59bb972f36067d814bff34b128350a80c3589b9c",
   "image_tag_hint": "24.07-trtllm-python-py3; TensorRT-LLM 0.11.0 observed on 2026-07-02",

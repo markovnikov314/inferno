@@ -1,24 +1,19 @@
 # Deployment Profile Comparisons
 
-Project Inferno P6 adds llama.cpp only as a deployment-profile comparison path.
-It is not a strict engine-only comparison.
+Deployment-profile reports compare practical serving setups when more than the
+engine differs. They are useful for operational tradeoffs, but they should not
+be read as strict engine-only attribution.
 
-Required banner:
+The llama.cpp profile differs from strict vLLM/SGLang runs in weight format,
+precision, tokenizer source, container image, and runtime controls.
 
-> DEPLOYMENT PROFILE COMPARISON — engine and one or more controlled deployment variables differ. Do not attribute outcomes to engine alone.
-
-The P6 local profile intentionally differs from P5 strict vLLM/SGLang runs:
-
-| Control | P5 strict vLLM/SGLang | P6 llama.cpp profile |
+| Control | Strict vLLM/SGLang | llama.cpp profile |
 |---|---|---|
 | Engine | vLLM or SGLang | llama.cpp `llama-server` |
 | Weight format | Hugging Face weights | GGUF |
 | Precision | half | quantized |
 | Quantization | none | Q4_K_M |
-| Tokenizer source | Hugging Face tokenizer revision | tokenizer metadata embedded in the GGUF artifact |
-| Container/build | vLLM/SGLang pinned images | `ghcr.io/ggml-org/llama.cpp:server-cuda` pinned by digest |
+| Tokenizer source | Hugging Face tokenizer revision | GGUF metadata |
+| Container/build | pinned vLLM/SGLang images | pinned llama.cpp CUDA image |
 
-Strict mode must continue to reject llama.cpp and any mismatched GGUF,
-precision, quantization, tokenizer, or runtime controls. Use
-`MODE=deployment-profile` for P6 reports, and interpret results as practical
-profile outcomes rather than engine-only attribution.
+Use `MODE=deployment-profile` for these reports.

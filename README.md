@@ -1,91 +1,43 @@
 # Inferno
 
-Inferno is a local-first inference evaluation workspace. It runs real model
-serving engines, writes validation-backed artifacts, and keeps the claims narrow:
-if a result is not backed by an artifact, it is not a result.
-
-The current phase adds a local browser dashboard for operator-friendly GPU
-smoke tests across vLLM, SGLang, Ollama, and TensorRT-LLM profiles. The older
-phases remain in the repo because they explain how the evidence system grew.
+Inferno is a local-first toolkit for evaluating LLM serving engines with
+artifact-backed evidence. It runs OpenAI-compatible model servers, captures
+streaming traces and GPU telemetry, validates each run, and presents the results
+through a Python CLI and a local browser dashboard.
 
 ```mermaid
 flowchart LR
-    A["GPU host"] --> B["Engine runner"]
-    B --> C["Raw SSE and traces"]
-    B --> D["Telemetry samples"]
-    C --> E["Artifact contract"]
-    D --> E
-    E --> F["Reports and dashboard"]
-    F --> G["Narrow, validated claims"]
+    A["CLI or local dashboard"] --> B["Engine runner"]
+    B --> C["vLLM, SGLang, Ollama, TensorRT-LLM"]
+    B --> D["Request traces and raw streams"]
+    B --> E["GPU telemetry"]
+    D --> F["Artifact contract"]
+    E --> F
+    F --> G["Reports, metrics, and validation"]
 ```
 
-## What This Repo Is
+## Features
 
-- A Python CLI for GPU preflight, engine smoke runs, studies, reports, replay,
-  planning, validation, and dashboard serving.
-- A React/Vite dashboard served locally by FastAPI.
-- A set of phase records that separate strict engine evidence from deployment
-  profile and engine-configuration evidence.
-- A clean artifact contract for manifests, traces, telemetry, summaries, and
-  validation results.
-
-## What This Repo Is Not
-
-- Not a public inference endpoint.
-- Not a cloud control plane.
-- Not a live router or autoscaler.
-- Not a place to commit SSH targets, tokens, model weights, or private prompts.
-
-## Phase Map
-
-```mermaid
-flowchart TB
-    P0["P0 Scope lock and preflight"] --> P1["P1 Real vLLM slice"]
-    P1 --> P2["P2 Artifact contract"]
-    P2 --> P3["P3 Reproducible vLLM smoke"]
-    P3 --> P4["P4 Strict vLLM/SGLang study"]
-    P4 --> P5["P5 Research core release"]
-    P5 --> P6["P6 llama.cpp deployment profile"]
-    P6 --> P7["P7 Capacity planner"]
-    P7 --> P8["P8 Offline router replay"]
-    P8 --> P9["P9 Hardening gate"]
-    P9 --> P10["P10 TensorRT-LLM config"]
-    P10 --> P11["P11 Local dashboard"]
-```
+- Real engine smoke runs with pinned Docker images and model revisions.
+- Validated artifacts for manifests, request traces, raw streams, telemetry,
+  summaries, checksums, and validation output.
+- Strict vLLM/SGLang comparisons, deployment-profile reports, and
+  engine-configuration reports.
+- Offline capacity planning and serving-policy replay from existing artifacts.
+- Local FastAPI + React dashboard for GPU preflight, benchmark runs, and
+  artifact-backed metrics.
 
 ## Repository Layout
 
 ```text
 src/inferno/             Python CLI, runners, validators, planners, dashboard API
-web/dashboard/           Local React dashboard
-configs/                 Engine, workload, study, planner, router, hardening configs
-docs/                    Methodology, limitations, reproducibility, phase docs
-.inferno/                Governance, contracts, policies, handoffs, phase state
-tests/                   CPU-safe unit tests
-artifacts/               Generated locally and ignored, except its README
+web/dashboard/           React dashboard served by the local API
+configs/                 Engine, workload, study, planner, router, and audit configs
+docs/                    Methodology, reproducibility, and workflow notes
+schemas/artifacts/       JSON schema snapshots for generated evidence
+tests/                   CPU-safe test suite
+artifacts/               Local generated outputs, ignored by Git
 ```
-
-## Artifact Flow
-
-```mermaid
-sequenceDiagram
-    participant User
-    participant CLI
-    participant Engine
-    participant Contract
-    participant Dashboard
-
-    User->>CLI: run-real / study / dashboard job
-    CLI->>Engine: launch configured engine on GPU host
-    Engine-->>CLI: streamed tokens, usage, logs
-    CLI->>Contract: write manifest, trace, telemetry, summary
-    Contract-->>CLI: validation result
-    CLI-->>Dashboard: artifact-backed metrics
-```
-
-Generated artifacts belong under `artifacts/` and are intentionally ignored by
-Git. Keep publishable evidence as redacted summaries, reports, configs, tests,
-and phase records.
 
 ## Quick Start
 
@@ -95,15 +47,10 @@ Install Python dependencies:
 uv sync --all-groups --frozen
 ```
 
-Run the CPU-safe test suite:
+Run tests and linting:
 
 ```bash
 uv run pytest -q
-```
-
-Run linting:
-
-```bash
 uv run ruff check src tests
 ```
 
@@ -115,34 +62,30 @@ npm install
 npm run build
 ```
 
-Serve the local dashboard:
+Serve the dashboard locally:
 
 ```bash
 PYTHONPATH=src uv run python -m inferno.cli dashboard --host 127.0.0.1 --port 8765
 ```
 
-GPU runs need a runtime-only SSH target:
+Run GPU preflight with a shell-provided target:
 
 ```bash
 INFERNO_GPU_SSH="[operator supplied target]" PYTHONPATH=src uv run python -m inferno.cli doctor-gpu
 ```
 
-Do not commit that value. The project policy expects it to come from your shell
-or the dashboard form at runtime.
-
 ## Dashboard Metrics
 
-The P11 dashboard reports metrics only when they can be derived from generated
-artifacts:
+The dashboard derives metrics from generated artifacts:
 
-- TTFT, TPOT, E2E p50/p95/p99, TPS, request throughput
+- TTFT, TPOT, E2E p50/p95/p99, TPS, and request throughput
 - configured and observed concurrency
-- GPU utilization and VRAM from telemetry
-- KV cache efficiency when native engine usage exposes cached tokens
+- GPU utilization and VRAM usage from telemetry
+- KV cache efficiency when the engine exposes cached token usage
 - batching and scheduler efficiency as labeled proxies when native counters are
-  not available
+  unavailable
 
-## Useful Commands
+## Common Commands
 
 ```bash
 make doctor
@@ -151,8 +94,4 @@ make dashboard
 PYTHONPATH=src uv run python -m inferno.cli dashboard --smoke --no-open
 ```
 
-## Publishing Notes
-
-This clean copy omits generated run artifacts, virtual environments, caches,
-dashboard build output, and installed Node modules. Recreate those locally with
-the commands above.
+Generated runs, reports, and dashboard logs are written under `artifacts/`.

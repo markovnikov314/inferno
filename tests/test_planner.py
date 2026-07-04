@@ -11,7 +11,7 @@ def test_capacity_plan_writes_extrapolated_result_and_holdout(tmp_path: Path) ->
 
     assert planner.run_capacity_plan(config_path=config_path, project_root=tmp_path) == 0
 
-    output_dir = tmp_path / "artifacts/planner/p7"
+    output_dir = tmp_path / "artifacts/planner/capacity_planning"
     latest = json.loads((output_dir / "latest.json").read_text())
     holdout = json.loads((output_dir / "holdout_eval.json").read_text())
 
@@ -29,18 +29,18 @@ def test_capacity_plan_rejects_wrong_comparison_type(tmp_path: Path) -> None:
 
     assert planner.run_capacity_plan(config_path=config_path, project_root=tmp_path) == 1
 
-    latest = json.loads((tmp_path / "artifacts/planner/p7/latest.json").read_text())
+    latest = json.loads((tmp_path / "artifacts/planner/capacity_planning/latest.json").read_text())
     assert latest["compatible_evidence_count"] == 0
     assert "comparison type is not strict_engine_comparison" in latest["rejected_evidence"][0]["reason"]
 
 
 def _planner_config(tmp_path: Path, evidence_studies: list[Path]) -> Path:
-    path = tmp_path / "configs/planner/p7.json"
+    path = tmp_path / "configs/planner/capacity_planning.json"
     _write_json(
         path,
         {
             "schema_version": 1,
-            "plan_id": "p7-test",
+            "plan_id": "capacity_planning-test",
             "traffic": {
                 "request_rate_rps": 8,
                 "arrival_model": "poisson",
@@ -56,7 +56,7 @@ def _planner_config(tmp_path: Path, evidence_studies: list[Path]) -> Path:
             },
             "pricing": {"source": "user_provided", "checked_at": "2026-07-02T00:00:00Z"},
             "evidence_studies": [str(path) for path in evidence_studies],
-            "artifacts_dir": "artifacts/planner/p7",
+            "artifacts_dir": "artifacts/planner/capacity_planning",
         },
     )
     return path.relative_to(tmp_path)
@@ -81,12 +81,12 @@ def _strict_study(
                     "validation_ok": True,
                 }
             )
-    path = tmp_path / "artifacts/studies/p5_test/latest.json"
+    path = tmp_path / "artifacts/studies/research_test/latest.json"
     _write_json(
         path,
         {
             "schema_version": 1,
-            "study_id": "p5_test",
+            "study_id": "research_test",
             "study_type": study_type,
             "environment_block_id": "test-block",
             "runs": runs,
@@ -96,7 +96,7 @@ def _strict_study(
 
 
 def _valid_run(tmp_path: Path, *, engine: str, repeat_index: int) -> Path:
-    run_dir = tmp_path / f"artifacts/runs/p5-{engine}-r{repeat_index:02d}"
+    run_dir = tmp_path / f"artifacts/runs/research_core-{engine}-r{repeat_index:02d}"
     run_dir.mkdir(parents=True)
     artifacts = contract.ArtifactPaths.model_validate(
         contract.default_artifacts(engine).model_dump(mode="json")
@@ -105,9 +105,9 @@ def _valid_run(tmp_path: Path, *, engine: str, repeat_index: int) -> Path:
     manifest = contract.RunManifest(
         schema_version=1,
         contract_version=contract.CONTRACT_VERSION,
-        phase="P5",
+        run_family="research_core",
         run_id=run_dir.name,
-        study_id="p5_test",
+        study_id="research_test",
         repeat_index=repeat_index,
         status="SUCCEEDED",
         created_at="2026-07-01T00:00:00+00:00",
@@ -139,8 +139,8 @@ def _valid_run(tmp_path: Path, *, engine: str, repeat_index: int) -> Path:
             memory_mib=15360,
         ),
         workload=contract.WorkloadInfo(
-            workload_id="p5_test",
-            prompt_template_id="p5-test-v1",
+            workload_id="research_test",
+            prompt_template_id="research_core-test-v1",
             seed=123,
             prompt_sha256=contract.sha256_text("hello"),
             prompt_chars=5,

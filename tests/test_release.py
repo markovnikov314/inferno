@@ -6,11 +6,11 @@ from inferno import release
 
 
 FAMILIES = [
-    ("p5_smoke", "smoke"),
-    ("p5_interactive", "interactive"),
-    ("p5_decode_heavy", "decode-heavy"),
-    ("p5_long_context_lite", "long-context-lite"),
-    ("p5_structured_output_lite", "structured-output-lite"),
+    ("research_smoke", "smoke"),
+    ("research_interactive", "interactive"),
+    ("research_decode_heavy", "decode-heavy"),
+    ("research_long_context_lite", "long-context-lite"),
+    ("research_structured_output_lite", "structured-output-lite"),
 ]
 
 
@@ -21,13 +21,13 @@ def test_release_package_builds_redacted_manifest(tmp_path: Path) -> None:
         config = _write_study_config(tmp_path, study_id, family)
         _write_latest(tmp_path, study_id, family)
         studies.append({"study_id": study_id, "config": str(config), "workload_family": family})
-    release_config = tmp_path / "configs/study/p5_research_core.yaml"
+    release_config = tmp_path / "configs/study/research_core.yaml"
     _write_json(
         release_config,
         {
             "schema_version": 1,
-            "release_id": "p5_research_core_v1",
-            "study_type": "p5_research_core_release",
+            "release_id": "research_core_v1",
+            "study_type": "research_core_release",
             "mode": "redacted",
             "required_workload_families": [family for _, family in FAMILIES],
             "studies": studies,
@@ -37,7 +37,7 @@ def test_release_package_builds_redacted_manifest(tmp_path: Path) -> None:
                 "docs/reproducibility.md",
                 "docs/privacy-and-redaction.md",
             ],
-            "artifacts_dir": "artifacts/releases/p5_research_core_v1",
+            "artifacts_dir": "artifacts/releases/research_core_v1",
         },
     )
 
@@ -50,12 +50,12 @@ def test_release_package_builds_redacted_manifest(tmp_path: Path) -> None:
         == 0
     )
 
-    package_dir = tmp_path / "artifacts/releases/p5_research_core_v1/redacted"
+    package_dir = tmp_path / "artifacts/releases/research_core_v1/redacted"
     manifest = json.loads((package_dir / "manifest.json").read_text())
     assert len(manifest["workload_families"]) == 5
     assert all(item["sha256"] for item in manifest["files"])
     report_inputs = json.loads(
-        (package_dir / "reports/p5_smoke/report_inputs.redacted.json").read_text()
+        (package_dir / "reports/research_smoke/report_inputs.redacted.json").read_text()
     )
     run = report_inputs["runs"][0]
     assert run["artifacts"]["raw_sse"].startswith("redacted:")
@@ -73,7 +73,7 @@ def _write_study_config(tmp_path: Path, study_id: str, family: str) -> Path:
             "study_id": study_id,
             "study_type": "strict_engine_comparison",
             "engines": ["vllm", "sglang"],
-            "phase": "P5",
+            "run_family": "research_core",
             "environment_block_id": "test",
             "run_order_seed": 1,
             "run_order": [
@@ -124,7 +124,7 @@ def _write_latest(tmp_path: Path, study_id: str, family: str) -> None:
 
 
 def _valid_run(tmp_path: Path, study_id: str, family: str, engine: str, repeat: int) -> Path:
-    run_dir = tmp_path / f"artifacts/runs/p5-{engine}-{study_id}-r{repeat:02d}"
+    run_dir = tmp_path / f"artifacts/runs/research_core-{engine}-{study_id}-r{repeat:02d}"
     run_dir.mkdir(parents=True)
     artifacts = contract.ArtifactPaths.model_validate(
         contract.default_artifacts(engine).model_dump(mode="json")
@@ -136,7 +136,7 @@ def _valid_run(tmp_path: Path, study_id: str, family: str, engine: str, repeat: 
     manifest = contract.RunManifest(
         schema_version=1,
         contract_version=contract.CONTRACT_VERSION,
-        phase="P5",
+        run_family="research_core",
         run_id=run_dir.name,
         study_id=study_id,
         repeat_index=repeat,

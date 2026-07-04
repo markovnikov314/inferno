@@ -140,7 +140,7 @@ def run_dashboard(*, host: str, port: int, open_browser: bool, project_root: Pat
     import uvicorn
 
     if not _is_loopback_host(host):
-        raise ValueError("P11 dashboard is local-only; use 127.0.0.1, localhost, or ::1")
+        raise ValueError("dashboard is local-only; use 127.0.0.1, localhost, or ::1")
     url = f"http://{host}:{port}"
     if open_browser:
         threading.Timer(1.0, lambda: webbrowser.open(url)).start()

@@ -14,11 +14,11 @@ def test_router_replay_writes_negative_result_leakage_and_ablations(tmp_path: Pa
 
     assert router.run_router_replay(config_path=config_path, project_root=tmp_path) == 0
 
-    output_dir = tmp_path / "artifacts/router/p8"
+    output_dir = tmp_path / "artifacts/router/router_replay"
     latest = json.loads((output_dir / "latest.json").read_text())
     decision_lines = (output_dir / "decision_log.jsonl").read_text().splitlines()
 
-    assert latest["phase"] == "P8"
+    assert latest["run_family"] == "router_replay"
     assert latest["replay_request_count"] == 4
     assert len(decision_lines) == 4
     assert latest["leakage_check"]["status"] == "PASS"
@@ -43,12 +43,12 @@ def _router_config(
     *,
     holdout_strategy: str = "leave_one_workload_block_out",
 ) -> Path:
-    path = tmp_path / "configs/router/p8.json"
+    path = tmp_path / "configs/router/router_replay.json"
     _write_json(
         path,
         {
             "schema_version": 1,
-            "replay_id": "p8-test",
+            "replay_id": "router_replay-test",
             "candidate_scope": {
                 "environment_fingerprint": "test-block",
                 "comparison_type": "strict",
@@ -68,7 +68,7 @@ def _router_config(
             },
             "pricing": {"source": "user_provided", "checked_at": "2026-07-02T00:00:00Z"},
             "evidence_studies": [str(path) for path in evidence_studies],
-            "artifacts_dir": "artifacts/router/p8",
+            "artifacts_dir": "artifacts/router/router_replay",
         },
     )
     return path.relative_to(tmp_path)
@@ -77,8 +77,8 @@ def _router_config(
 def _strict_study(tmp_path: Path) -> Path:
     runs = []
     for workload_id, prompt_chars, max_tokens in (
-        ("p5_smoke", 44, 96),
-        ("p5_decode_heavy", 122, 192),
+        ("research_smoke", 44, 96),
+        ("research_decode_heavy", 122, 192),
     ):
         for repeat in (1, 2):
             for engine, e2e_ms in (("vllm", 20.0 + repeat), ("sglang", 10.0 + repeat)):
@@ -102,12 +102,12 @@ def _strict_study(tmp_path: Path) -> Path:
                         "validation_ok": True,
                     }
                 )
-    path = tmp_path / "artifacts/studies/p5_test/latest.json"
+    path = tmp_path / "artifacts/studies/research_test/latest.json"
     _write_json(
         path,
         {
             "schema_version": 1,
-            "study_id": "p5_test",
+            "study_id": "research_test",
             "study_type": "strict_engine_comparison",
             "environment_block_id": "test-block",
             "runs": runs,
@@ -127,7 +127,7 @@ def _valid_run(
     ttft_ms: float,
     e2e_ms: float,
 ) -> Path:
-    run_dir = tmp_path / f"artifacts/runs/p5-{engine}-{workload_id}-r{repeat_index:02d}"
+    run_dir = tmp_path / f"artifacts/runs/research_core-{engine}-{workload_id}-r{repeat_index:02d}"
     run_dir.mkdir(parents=True)
     artifacts = contract.ArtifactPaths.model_validate(
         contract.default_artifacts(engine).model_dump(mode="json")
@@ -136,9 +136,9 @@ def _valid_run(
     manifest = contract.RunManifest(
         schema_version=1,
         contract_version=contract.CONTRACT_VERSION,
-        phase="P5",
+        run_family="research_core",
         run_id=run_dir.name,
-        study_id="p5_test",
+        study_id="research_test",
         repeat_index=repeat_index,
         status="SUCCEEDED",
         created_at="2026-07-01T00:00:00+00:00",

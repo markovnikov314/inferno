@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "workload_id": "tensorrtllm_smoke",
-  "prompt_template_id": "p10-tensorrtllm-smoke-chat-v1",
+  "prompt_template_id": "engine_configuration-tensorrtllm-smoke-chat-v1",
   "seed": 10101,
   "prompt": "Explain TensorRT-LLM serving in one concise sentence.",
   "request_rate_rps": 0.1,

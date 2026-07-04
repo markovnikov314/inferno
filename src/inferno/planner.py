@@ -1,4 +1,4 @@
-"""P7 trace-grounded capacity planner."""
+"""Trace-grounded capacity planner."""
 
 from __future__ import annotations
 
@@ -126,7 +126,7 @@ def build_capacity_plan(
 
     return {
         "schema_version": 1,
-        "phase": "P7",
+        "run_family": "capacity_planning",
         "plan_id": config.plan_id,
         "planner": "nearest_neighbor_bounded_v1",
         "comparison_type": config.candidate_scope.comparison_type,
@@ -188,7 +188,7 @@ def evaluate_holdout(evidence: list[EvidencePoint]) -> dict[str, Any]:
 
 def render_capacity_report(result: Mapping[str, Any]) -> str:
     lines = [
-        "# P7 Trace-Grounded Capacity Planner",
+        "# Trace-Grounded Capacity Planner",
         "",
         "TRACE-GROUNDED PLANNER - recommendations are bounded by validated stored artifacts. "
         "EXTRAPOLATED is not measured capacity.",

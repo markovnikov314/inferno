@@ -1,4 +1,4 @@
-"""P5 redacted release package builder."""
+"""research_core redacted release package builder."""
 
 from __future__ import annotations
 
@@ -30,7 +30,7 @@ class ReleaseConfig(BaseModel):
 
     schema_version: Literal[1]
     release_id: str = Field(min_length=1)
-    study_type: Literal["p5_research_core_release"]
+    study_type: Literal["research_core_release"]
     mode: Literal["redacted"] = "redacted"
     required_workload_families: list[str] = Field(default_factory=list)
     studies: list[ReleaseStudyRef] = Field(min_length=1)
@@ -40,9 +40,9 @@ class ReleaseConfig(BaseModel):
 
 def package_release(*, mode: str, study_path: Path, project_root: Path) -> int:
     if mode != "redacted":
-        raise ValueError("P5 release packaging supports MODE=redacted only")
+        raise ValueError("research_core release packaging supports MODE=redacted only")
     payload = json.loads((project_root / study_path).read_text(encoding="utf-8-sig"))
-    if payload.get("study_type") == "p5_research_core_release":
+    if payload.get("study_type") == "research_core_release":
         config = ReleaseConfig.model_validate(payload)
     else:
         config = _single_study_release_config(study_path, payload)
@@ -186,11 +186,11 @@ def validate_release_package(package_dir: Path) -> list[str]:
 
 def _single_study_release_config(study_path: Path, payload: Mapping[str, Any]) -> ReleaseConfig:
     study_id = str(payload["study_id"])
-    family = study_id.removeprefix("p5_") or study_id
+    family = study_id.removeprefix("research_") or study_id
     return ReleaseConfig(
         schema_version=1,
         release_id=f"{study_id}_redacted",
-        study_type="p5_research_core_release",
+        study_type="research_core_release",
         required_workload_families=[family],
         studies=[ReleaseStudyRef(study_id=study_id, config=str(study_path), workload_family=family)],
         artifacts_dir=f"artifacts/releases/{study_id}",

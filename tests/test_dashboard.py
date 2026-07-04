@@ -112,7 +112,7 @@ def test_dashboard_job_maps_tensorrt_to_t4_profile(
 
     def fake_runner(**kwargs: object) -> vllm_remote.RunRealResult:
         calls.append(kwargs)
-        run_dir = tmp_path / "artifacts/runs/p11-dashboard-fake"
+        run_dir = tmp_path / "artifacts/runs/dashboard-dashboard-fake"
         run_dir.mkdir(parents=True, exist_ok=True)
         return vllm_remote.RunRealResult(0, run_dir.name, run_dir, True)
 
@@ -147,7 +147,7 @@ def test_dashboard_job_maps_tensorrt_to_t4_profile(
     assert snapshot is not None
     assert snapshot.status == "succeeded"
     assert calls[0]["engine"] == "tensorrtllm_t4"
-    assert calls[0]["phase"] == "P11"
+    assert calls[0]["run_family"] == "dashboard"
     assert calls[0]["env"]["INFERNO_ENGINE_HEALTH_TIMEOUT"] == "120"
     assert any(event["type"] == "engine_readiness" for event in snapshot.events)
     workload_path = tmp_path / calls[0]["config_path"]
@@ -321,7 +321,7 @@ def _write_base_workload(path: Path) -> None:
             {
                 "schema_version": 1,
                 "workload_id": "tensorrtllm_t4_smoke",
-                "prompt_template_id": "p10-tensorrt-t4-smoke-chat-v1",
+                "prompt_template_id": "engine_configuration-tensorrt-t4-smoke-chat-v1",
                 "seed": 123,
                 "prompt": "hello",
                 "measurement": {"requests": 1, "max_runtime_seconds": 300},
@@ -344,7 +344,7 @@ def _dashboard_manifest(run_dir: Path) -> contract.RunManifest:
     manifest = contract.RunManifest(
         schema_version=1,
         contract_version=contract.CONTRACT_VERSION,
-        phase="P11",
+        run_family="dashboard",
         run_id=run_dir.name,
         study_id="dashboard_vllm",
         repeat_index=1,
@@ -379,7 +379,7 @@ def _dashboard_manifest(run_dir: Path) -> contract.RunManifest:
         ),
         workload=contract.WorkloadInfo(
             workload_id="dashboard_vllm",
-            prompt_template_id="p11-dashboard-chat-v1",
+            prompt_template_id="dashboard-dashboard-chat-v1",
             seed=123,
             prompt_sha256=contract.sha256_text("hello"),
             prompt_chars=5,

@@ -1,4 +1,4 @@
-"""P8 offline serving-policy replay evaluator."""
+"""Offline serving-policy replay evaluator."""
 
 from __future__ import annotations
 
@@ -161,7 +161,7 @@ def build_router_replay(
     comparison = _proposed_comparison(proposed, baseline)
     return {
         "schema_version": 1,
-        "phase": "P8",
+        "run_family": "router_replay",
         "replay_id": config.replay_id,
         "evaluator": "offline_serving_policy_replay_v1",
         "comparison_type": config.candidate_scope.comparison_type,
@@ -185,7 +185,7 @@ def build_router_replay(
         },
         "decision_log": decision_log,
         "limitations": [
-            "P8 is offline replay only; no live endpoint or runtime router is introduced.",
+            "Offline replay only; no live endpoint or runtime router is introduced.",
             "Replay decisions are bounded by existing validated artifacts and held out by workload block.",
             "Prompt token counts are unavailable in source artifacts, so canonical prompt length uses prompt characters.",
             "Cost is unavailable unless dated user-provided candidate prices are supplied.",
@@ -197,7 +197,7 @@ def build_router_replay(
 def render_router_report(result: Mapping[str, Any]) -> str:
     comparison = result["baseline_comparison"]
     lines = [
-        "# P8 Offline Serving-Policy Router Replay",
+        "# Offline Serving-Policy Router Replay",
         "",
         "OFFLINE REPLAY ONLY - no live router, endpoint, or serving control plane is introduced.",
         "",

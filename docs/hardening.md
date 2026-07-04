@@ -1,33 +1,19 @@
-# P9 Hardening
+# Repository Audit
 
-P9 adds repository hardening only. It does not introduce live routing, a
-dashboard, a new adapter, a benchmark runner, or a serving control plane.
+The repository audit checks clean-clone setup, schema drift, report snapshots,
+static preview generation, image/model provenance, secret scanning, dependency
+metadata, and regression baselines.
 
-Run the local hardening checks:
-
-```bash
-make hardening-check HARDENING=configs/hardening/p9_hardening.yaml
-```
-
-Run the P9 real GPU acceptance gate with an operator-supplied environment
-variable:
+Run the local audit:
 
 ```bash
-$env:PYTHONPATH='src'; uv run python -m inferno.cli hardening-check --config configs/hardening/p9_hardening.yaml --include-gpu-smoke
+make hardening-check HARDENING=configs/hardening/repo_audit.yaml
 ```
 
-The GPU smoke gate uses `INFERNO_GPU_SSH` from the environment and writes only
-redacted preflight evidence. It is a host/container smoke check, not a new
-engine-readiness claim.
+Run the optional GPU smoke gate with a shell-provided target:
 
-Outputs:
+```bash
+PYTHONPATH=src uv run python -m inferno.cli hardening-check --config configs/hardening/repo_audit.yaml --include-gpu-smoke
+```
 
-- `artifacts/hardening/p9_hardening/latest.json`
-- `artifacts/hardening/p9_hardening/gpu_smoke.json`
-- `artifacts/hardening/p9_hardening/report_preview.html`
-- `artifacts/hardening/p9_hardening/report.md`
-
-The hardening report covers clean-clone lockfile setup, CPU-only fake-test
-coverage, schema snapshot drift, report snapshots, static browser preview
-generation, image/model provenance, secret scanning, dependency audit, and
-P5/P6/P7/P8 regression baselines.
+Outputs are written under `artifacts/hardening/repo_audit/`.

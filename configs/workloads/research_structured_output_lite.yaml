@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "workload_id": "research_structured_output_lite",
+  "prompt_template_id": "research_core-structured-output-lite-v1",
+  "seed": 5105,
+  "prompt": "Return only a JSON object with keys answer and controls. The answer value must be one short sentence explaining strict engine comparison. The controls value must be an array of exactly three strings.",
+  "arrival_model": "closed_loop",
+  "cache_state": "cold_per_run",
+  "warmup": {
+    "requests": 0
+  },
+  "measurement": {
+    "requests": 1,
+    "max_runtime_seconds": 450
+  },
+  "sampling": {
+    "temperature": 0,
+    "top_p": 1,
+    "max_tokens": 128
+  },
+  "retry_policy": "none",
+  "failure_policy": "fail_run"
+}
