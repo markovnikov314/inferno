@@ -5,6 +5,8 @@ artifact-backed evidence. It runs OpenAI-compatible model servers, captures
 streaming traces and GPU telemetry, validates each run, and presents the results
 through a Python CLI and a local browser dashboard.
 
+![Inferno dashboard](assets/inferno_dash.png)
+
 ```mermaid
 flowchart LR
     A["CLI or local dashboard"] --> B["Engine runner"]
