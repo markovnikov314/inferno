@@ -1,0 +1,791 @@
+{
+  "$defs": {
+    "ArtifactPaths": {
+      "additionalProperties": false,
+      "properties": {
+        "checksums": {
+          "title": "Checksums",
+          "type": "string"
+        },
+        "engine_logs": {
+          "title": "Engine Logs",
+          "type": "string"
+        },
+        "engine_native_metrics": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Engine Native Metrics"
+        },
+        "health": {
+          "title": "Health",
+          "type": "string"
+        },
+        "launch_provenance": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Launch Provenance"
+        },
+        "manifest": {
+          "title": "Manifest",
+          "type": "string"
+        },
+        "raw_sse": {
+          "title": "Raw Sse",
+          "type": "string"
+        },
+        "request_trace": {
+          "title": "Request Trace",
+          "type": "string"
+        },
+        "request_trace_parquet": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Request Trace Parquet"
+        },
+        "summary": {
+          "title": "Summary",
+          "type": "string"
+        },
+        "telemetry_parquet": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Telemetry Parquet"
+        },
+        "validation": {
+          "title": "Validation",
+          "type": "string"
+        }
+      },
+      "required": [
+        "manifest",
+        "request_trace",
+        "raw_sse",
+        "engine_logs",
+        "health",
+        "summary",
+        "validation",
+        "checksums"
+      ],
+      "title": "ArtifactPaths",
+      "type": "object"
+    },
+    "EngineInfo": {
+      "additionalProperties": false,
+      "properties": {
+        "container_name": {
+          "minLength": 1,
+          "title": "Container Name",
+          "type": "string"
+        },
+        "env": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Env",
+          "type": "array"
+        },
+        "image": {
+          "minLength": 1,
+          "title": "Image",
+          "type": "string"
+        },
+        "launch_args": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Launch Args",
+          "type": "array"
+        },
+        "name": {
+          "enum": [
+            "vllm",
+            "sglang",
+            "llamacpp",
+            "tensorrtllm",
+            "tensorrtllm_t4",
+            "ollama"
+          ],
+          "title": "Name",
+          "type": "string"
+        },
+        "port": {
+          "title": "Port",
+          "type": "integer"
+        },
+        "served_model_name": {
+          "minLength": 1,
+          "title": "Served Model Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "image",
+        "container_name",
+        "port",
+        "served_model_name"
+      ],
+      "title": "EngineInfo",
+      "type": "object"
+    },
+    "HardwareInfo": {
+      "additionalProperties": false,
+      "properties": {
+        "cuda_version": {
+          "minLength": 1,
+          "title": "Cuda Version",
+          "type": "string"
+        },
+        "driver_version": {
+          "minLength": 1,
+          "title": "Driver Version",
+          "type": "string"
+        },
+        "gpu_count": {
+          "minimum": 1,
+          "title": "Gpu Count",
+          "type": "integer"
+        },
+        "gpu_model": {
+          "minLength": 1,
+          "title": "Gpu Model",
+          "type": "string"
+        },
+        "memory_mib": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Memory Mib"
+        }
+      },
+      "required": [
+        "gpu_model",
+        "gpu_count",
+        "driver_version",
+        "cuda_version"
+      ],
+      "title": "HardwareInfo",
+      "type": "object"
+    },
+    "HealthEvidence": {
+      "additionalProperties": false,
+      "properties": {
+        "model_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Model Ids",
+          "type": "array"
+        },
+        "ok": {
+          "title": "Ok",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "ok",
+        "model_ids"
+      ],
+      "title": "HealthEvidence",
+      "type": "object"
+    },
+    "ModelInfo": {
+      "additionalProperties": false,
+      "properties": {
+        "gguf_filename": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Gguf Filename"
+        },
+        "gguf_repo": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Gguf Repo"
+        },
+        "gguf_revision": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Gguf Revision"
+        },
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "quantization": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Quantization"
+        },
+        "revision": {
+          "minLength": 1,
+          "title": "Revision",
+          "type": "string"
+        },
+        "tokenizer_format": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tokenizer Format"
+        },
+        "tokenizer_id": {
+          "minLength": 1,
+          "title": "Tokenizer Id",
+          "type": "string"
+        },
+        "tokenizer_revision": {
+          "minLength": 1,
+          "title": "Tokenizer Revision",
+          "type": "string"
+        },
+        "weight_format": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Weight Format"
+        },
+        "weight_precision": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Weight Precision"
+        }
+      },
+      "required": [
+        "id",
+        "revision",
+        "tokenizer_id",
+        "tokenizer_revision"
+      ],
+      "title": "ModelInfo",
+      "type": "object"
+    },
+    "ShutdownEvidence": {
+      "additionalProperties": false,
+      "properties": {
+        "ok": {
+          "title": "Ok",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "ok"
+      ],
+      "title": "ShutdownEvidence",
+      "type": "object"
+    },
+    "SourceInfo": {
+      "additionalProperties": false,
+      "properties": {
+        "branch": {
+          "title": "Branch",
+          "type": "string"
+        },
+        "commit": {
+          "title": "Commit",
+          "type": "string"
+        },
+        "dirty": {
+          "title": "Dirty",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "branch",
+        "commit",
+        "dirty"
+      ],
+      "title": "SourceInfo",
+      "type": "object"
+    },
+    "StreamEvidence": {
+      "additionalProperties": false,
+      "properties": {
+        "generated_text_chars": {
+          "minimum": 0,
+          "title": "Generated Text Chars",
+          "type": "integer"
+        },
+        "generated_text_sha256": {
+          "maxLength": 64,
+          "minLength": 64,
+          "title": "Generated Text Sha256",
+          "type": "string"
+        },
+        "ok": {
+          "title": "Ok",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "ok",
+        "generated_text_sha256",
+        "generated_text_chars"
+      ],
+      "title": "StreamEvidence",
+      "type": "object"
+    },
+    "WorkloadInfo": {
+      "additionalProperties": false,
+      "properties": {
+        "arrival_model": {
+          "minLength": 1,
+          "title": "Arrival Model",
+          "type": "string"
+        },
+        "cache_policy": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cache Policy"
+        },
+        "cache_state": {
+          "minLength": 1,
+          "title": "Cache State",
+          "type": "string"
+        },
+        "concurrency": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Concurrency"
+        },
+        "context_length": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Context Length"
+        },
+        "cost_metadata": {
+          "additionalProperties": true,
+          "title": "Cost Metadata",
+          "type": "object"
+        },
+        "failure_policy": {
+          "minLength": 1,
+          "title": "Failure Policy",
+          "type": "string"
+        },
+        "max_in_flight": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max In Flight"
+        },
+        "max_runtime_seconds": {
+          "minimum": 1,
+          "title": "Max Runtime Seconds",
+          "type": "integer"
+        },
+        "measurement_requests": {
+          "minimum": 1,
+          "title": "Measurement Requests",
+          "type": "integer"
+        },
+        "output_target": {
+          "additionalProperties": true,
+          "title": "Output Target",
+          "type": "object"
+        },
+        "prompt_chars": {
+          "minimum": 1,
+          "title": "Prompt Chars",
+          "type": "integer"
+        },
+        "prompt_sha256": {
+          "maxLength": 64,
+          "minLength": 64,
+          "title": "Prompt Sha256",
+          "type": "string"
+        },
+        "prompt_target": {
+          "additionalProperties": true,
+          "title": "Prompt Target",
+          "type": "object"
+        },
+        "prompt_template_id": {
+          "minLength": 1,
+          "title": "Prompt Template Id",
+          "type": "string"
+        },
+        "quality_requirement": {
+          "additionalProperties": true,
+          "title": "Quality Requirement",
+          "type": "object"
+        },
+        "request_rate_rps": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Request Rate Rps"
+        },
+        "retry_policy": {
+          "minLength": 1,
+          "title": "Retry Policy",
+          "type": "string"
+        },
+        "runtime_knobs": {
+          "additionalProperties": true,
+          "title": "Runtime Knobs",
+          "type": "object"
+        },
+        "sampling": {
+          "additionalProperties": true,
+          "title": "Sampling",
+          "type": "object"
+        },
+        "seed": {
+          "title": "Seed",
+          "type": "integer"
+        },
+        "streaming": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Streaming"
+        },
+        "timeout_seconds": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Timeout Seconds"
+        },
+        "warmup_requests": {
+          "minimum": 0,
+          "title": "Warmup Requests",
+          "type": "integer"
+        },
+        "workload_id": {
+          "minLength": 1,
+          "title": "Workload Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "workload_id",
+        "prompt_template_id",
+        "seed",
+        "prompt_sha256",
+        "prompt_chars",
+        "arrival_model",
+        "cache_state",
+        "warmup_requests",
+        "measurement_requests",
+        "max_runtime_seconds",
+        "retry_policy",
+        "failure_policy",
+        "sampling"
+      ],
+      "title": "WorkloadInfo",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "artifacts": {
+      "$ref": "#/$defs/ArtifactPaths"
+    },
+    "comparison_key": {
+      "additionalProperties": true,
+      "title": "Comparison Key",
+      "type": "object"
+    },
+    "contract_version": {
+      "const": "inferno.artifacts.v1",
+      "title": "Contract Version",
+      "type": "string"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "engine": {
+      "$ref": "#/$defs/EngineInfo"
+    },
+    "first_request_perf_counter_ns": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "First Request Perf Counter Ns"
+    },
+    "hardware": {
+      "$ref": "#/$defs/HardwareInfo"
+    },
+    "health": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/HealthEvidence"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "manifest_created_before_request": {
+      "title": "Manifest Created Before Request",
+      "type": "boolean"
+    },
+    "manifest_written_perf_counter_ns": {
+      "minimum": 1,
+      "title": "Manifest Written Perf Counter Ns",
+      "type": "integer"
+    },
+    "model": {
+      "$ref": "#/$defs/ModelInfo"
+    },
+    "phase": {
+      "enum": [
+        "P2",
+        "P3",
+        "P4",
+        "P5",
+        "P6",
+        "P10",
+        "P11"
+      ],
+      "title": "Phase",
+      "type": "string"
+    },
+    "repeat_index": {
+      "anyOf": [
+        {
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Repeat Index"
+    },
+    "run_dir": {
+      "title": "Run Dir",
+      "type": "string"
+    },
+    "run_id": {
+      "minLength": 1,
+      "title": "Run Id",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "shutdown": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ShutdownEvidence"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "source": {
+      "$ref": "#/$defs/SourceInfo"
+    },
+    "status": {
+      "enum": [
+        "PLANNED",
+        "RUNNING",
+        "SUCCEEDED",
+        "FAILED",
+        "INVALID",
+        "SKIPPED_NO_GPU"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "stream": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/StreamEvidence"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "study_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Study Id"
+    },
+    "updated_at": {
+      "format": "date-time",
+      "title": "Updated At",
+      "type": "string"
+    },
+    "workload": {
+      "$ref": "#/$defs/WorkloadInfo"
+    }
+  },
+  "required": [
+    "schema_version",
+    "contract_version",
+    "phase",
+    "run_id",
+    "status",
+    "created_at",
+    "updated_at",
+    "manifest_created_before_request",
+    "manifest_written_perf_counter_ns",
+    "run_dir",
+    "source",
+    "engine",
+    "model",
+    "hardware",
+    "workload",
+    "artifacts",
+    "comparison_key"
+  ],
+  "title": "RunManifest",
+  "type": "object"
+}

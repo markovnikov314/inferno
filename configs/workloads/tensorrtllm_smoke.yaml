@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "workload_id": "tensorrtllm_smoke",
+  "prompt_template_id": "p10-tensorrtllm-smoke-chat-v1",
+  "seed": 10101,
+  "prompt": "Explain TensorRT-LLM serving in one concise sentence.",
+  "request_rate_rps": 0.1,
+  "arrival_model": "closed_loop",
+  "concurrency": 1,
+  "max_in_flight": 1,
+  "prompt_target": {
+    "unit": "chars",
+    "p50": 55,
+    "p95": 55
+  },
+  "output_target": {
+    "unit": "tokens",
+    "p50": 64,
+    "p95": 96
+  },
+  "context_length": 512,
+  "cache_state": "cold_per_run",
+  "cache_policy": "no_prefix_reuse",
+  "warmup": {
+    "requests": 0
+  },
+  "measurement": {
+    "requests": 1,
+    "max_runtime_seconds": 300,
+    "timeout_seconds": 300
+  },
+  "streaming": true,
+  "sampling": {
+    "temperature": 0,
+    "top_p": 1,
+    "max_tokens": 96
+  },
+  "timeout_seconds": 300,
+  "retry_policy": "none",
+  "failure_policy": "fail_run",
+  "quality_requirement": {
+    "type": "none"
+  },
+  "cost_metadata": {
+    "status": "UNAVAILABLE",
+    "reason": "no dated user-provided TensorRT-LLM candidate price"
+  },
+  "runtime_knobs": {
+    "backend": "pytorch",
+    "tensor_parallel_size": 1,
+    "pipeline_parallel_size": 1,
+    "kv_cache_free_gpu_memory_fraction": 0.8
+  }
+}

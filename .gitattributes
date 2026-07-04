@@ -1,0 +1,13 @@
+* text=auto
+.gitattributes text eol=lf
+.env.example text eol=lf
+.gitignore text eol=lf
+*.md text eol=lf
+*.py text eol=lf
+*.toml text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.json text eol=lf
+*.log text eol=lf
+Makefile text eol=lf
+uv.lock text eol=lf

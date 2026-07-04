@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "study_id": "vllm_smoke",
+  "engine": "vllm",
+  "workload_config": "configs/workloads/smoke_real.yaml",
+  "repeats": 3,
+  "telemetry_cadence_seconds": 0.5,
+  "low_sample_completed_requests": 50,
+  "artifacts_dir": "artifacts/studies/vllm_smoke"
+}

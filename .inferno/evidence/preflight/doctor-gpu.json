@@ -1,0 +1,126 @@
+{
+  "checks": [
+    {
+      "details": {
+        "executable": "C:\\Users\\[REDACTED]\\OneDrive\\Documents\\inferno\\.venv\\Scripts\\python.exe"
+      },
+      "message": "Python 3.13.1",
+      "name": "python",
+      "status": "ok"
+    },
+    {
+      "details": {
+        "path": "C:\\Python312\\Scripts\\uv.EXE"
+      },
+      "message": "uv is available",
+      "name": "uv",
+      "status": "ok"
+    },
+    {
+      "details": {
+        "missing": [],
+        "root": "C:\\Users\\[REDACTED]\\OneDrive\\Documents\\inferno"
+      },
+      "message": "pyproject.toml and uv.lock are present",
+      "name": "project_lock",
+      "status": "ok"
+    },
+    {
+      "details": {
+        "output": [
+          "Linux 6.8.0-1058-aws x86_64",
+          "PRETTY_NAME=\"Ubuntu 24.04.4 LTS\"",
+          "NAME=\"Ubuntu\"",
+          "VERSION_ID=\"24.04\""
+        ],
+        "returncode": 0,
+        "target": "[REDACTED]"
+      },
+      "message": "remote_os succeeded",
+      "name": "remote_os",
+      "status": "ok"
+    },
+    {
+      "details": {
+        "output": [
+          "Python 3.12.3"
+        ],
+        "returncode": 0,
+        "target": "[REDACTED]"
+      },
+      "message": "remote_python succeeded",
+      "name": "remote_python",
+      "status": "ok"
+    },
+    {
+      "details": {
+        "output": [
+          "git version 2.42.0"
+        ],
+        "returncode": 0,
+        "target": "[REDACTED]"
+      },
+      "message": "remote_git succeeded",
+      "name": "remote_git",
+      "status": "ok"
+    },
+    {
+      "details": {
+        "output": [
+          "Docker version 28.0.1, build 068a01e",
+          "Runtimes: io.containerd.runc.v2 nvidia runc Default: runc"
+        ],
+        "returncode": 0,
+        "target": "[REDACTED]"
+      },
+      "message": "remote_docker succeeded",
+      "name": "remote_docker",
+      "status": "ok"
+    },
+    {
+      "details": {
+        "output": [
+          "Tesla T4, 580.159.03, 15360 MiB"
+        ],
+        "returncode": 0,
+        "target": "[REDACTED]"
+      },
+      "message": "remote_gpu succeeded",
+      "name": "remote_gpu",
+      "status": "ok"
+    },
+    {
+      "details": {
+        "output": [
+          "Wed Jul  1 13:52:35 2026       ",
+          "+-----------------------------------------------------------------------------------------+",
+          "| NVIDIA-SMI 580.159.03             Driver Version: 580.159.03     CUDA Version: 13.0     |",
+          "+-----------------------------------------+------------------------+----------------------+",
+          "| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |",
+          "| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |",
+          "|                                         |                        |               MIG M. |",
+          "|=========================================+========================+======================|",
+          "|   0  Tesla T4                       Off |   00000000:00:1E.0 Off |                    0 |",
+          "| N/A   36C    P8             13W /   70W |       0MiB /  15360MiB |      0%      Default |",
+          "|                                         |                        |                  N/A |",
+          "+-----------------------------------------+------------------------+----------------------+",
+          "",
+          "+-----------------------------------------------------------------------------------------+",
+          "| Processes:                                                                              |",
+          "|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |",
+          "|        ID   ID                                                               Usage      |",
+          "|=========================================================================================|",
+          "|  No running processes found                                                             |",
+          "+-----------------------------------------------------------------------------------------+"
+        ],
+        "returncode": 0,
+        "target": "[REDACTED]"
+      },
+      "message": "remote_gpu_container succeeded",
+      "name": "remote_gpu_container",
+      "status": "ok"
+    }
+  ],
+  "schema_version": 1,
+  "status": "ok"
+}

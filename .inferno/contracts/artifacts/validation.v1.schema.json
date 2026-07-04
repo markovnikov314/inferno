@@ -1,0 +1,38 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "contract_version": {
+      "const": "inferno.artifacts.v1",
+      "default": "inferno.artifacts.v1",
+      "title": "Contract Version",
+      "type": "string"
+    },
+    "errors": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Errors",
+      "type": "array"
+    },
+    "ok": {
+      "title": "Ok",
+      "type": "boolean"
+    },
+    "run_id": {
+      "title": "Run Id",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "run_id",
+    "ok"
+  ],
+  "title": "ValidationResult",
+  "type": "object"
+}

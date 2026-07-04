@@ -1,0 +1,170 @@
+task_id: P10-TENSORRTLLM-WORKLOADS
+phase: P10
+owner_role: integrator
+base_commit: 202b3d88f3927d885d2a0c31337641bd70cc8a12
+head_commit: uncommitted
+branch: phase/01-vllm-vertical-slice
+owned_paths:
+  - configs/engines/tensorrtllm.json
+  - configs/engines/tensorrtllm_t4.json
+  - configs/workloads/tensorrtllm_smoke.yaml
+  - configs/workloads/tensorrtllm_t4_smoke.yaml
+  - configs/study/tensorrtllm_smoke.yaml
+  - configs/study/tensorrtllm_t4_smoke.yaml
+  - docs/tensorrt-llm.md
+  - src/inferno/artifact_contract.py
+  - src/inferno/vllm_remote.py
+  - src/inferno/study.py
+  - src/inferno/planner.py
+  - src/inferno/router.py
+  - src/inferno/hardening.py
+  - tests/test_artifact_contract.py
+  - tests/test_vllm_remote.py
+  - tests/test_study.py
+  - .inferno/contracts/artifacts/manifest.v1.schema.json
+  - .inferno/adr/ADR-0003-p10-tensorrtllm-workloads.md
+  - .inferno/handoffs/P10-TENSORRTLLM-WORKLOADS.yaml
+  - artifacts/runs/p10-tensorrtllm-smoke-r01-20260702T055403Z-0472d193/**
+  - artifacts/runs/p10-tensorrtllm_t4-smoke-r01-20260702T161929Z-9449e7f9/**
+  - artifacts/studies/tensorrtllm_smoke/**
+  - artifacts/studies/tensorrtllm_t4_smoke/**
+  - artifacts/compare/engine-configuration-20260702T162232Z/**
+forbidden_paths:
+  - live router endpoints
+  - dashboards
+  - cloud control plane
+  - benchmark service UI
+  - unrelated adapters
+  - P11+ scope
+  - artifact/release paths containing raw private outputs
+  - model weights or cache contents
+  - literal SSH targets, usernames, hostnames, private IPs, tokens, or private prompts
+implementation:
+  - Added TensorRT-LLM as pinned NVIDIA engine profiles: current `trtllm-serve` for supported newer GPUs and legacy T4 `LLM` API for Tesla T4.
+  - Added P10 TensorRT-LLM workload and study configs with expanded workload parameters.
+  - Extended the artifact contract and comparison key with optional workload, cost, and runtime knob metadata while preserving old artifacts.
+  - Added TensorRT-LLM launch, request, metrics, logging, summary, checksum, validation, and fake-test support.
+  - Added one-shot legacy TensorRT-LLM artifact capture for versions without `trtllm-serve`.
+  - Added engine-configuration comparison/report validation and kept strict mode limited to the existing vLLM/SGLang envelope.
+  - Flowed expanded workload metadata into planner, router, and hardening inputs where applicable.
+  - Added P10 docs and ADR.
+sources:
+  - https://nvidia.github.io/TensorRT-LLM/commands/trtllm-serve/trtllm-serve.html
+  - https://catalog.ngc.nvidia.com/orgs/nvidia/tensorrt-llm/containers/release
+  - https://nvidia.github.io/TensorRT-LLM/reference/support-matrix.html
+  - https://raw.githubusercontent.com/NVIDIA/TensorRT-LLM/v0.11.0/docs/source/reference/support-matrix.md
+artifacts:
+  negative_run: artifacts/runs/p10-tensorrtllm-smoke-r01-20260702T055403Z-0472d193
+  successful_t4_run: artifacts/runs/p10-tensorrtllm_t4-smoke-r01-20260702T161929Z-9449e7f9
+  study_latest: artifacts/studies/tensorrtllm_smoke/latest.json
+  t4_study_latest: artifacts/studies/tensorrtllm_t4_smoke/latest.json
+  study_report: artifacts/studies/tensorrtllm_smoke/report.md
+  t4_study_report: artifacts/studies/tensorrtllm_t4_smoke/report.md
+  engine_configuration_report: artifacts/compare/engine-configuration-20260702T162232Z/report.md
+  run_validation: artifacts/runs/p10-tensorrtllm-smoke-r01-20260702T055403Z-0472d193/validation.json
+  t4_run_validation: artifacts/runs/p10-tensorrtllm_t4-smoke-r01-20260702T161929Z-9449e7f9/validation.json
+  engine_log: artifacts/runs/p10-tensorrtllm-smoke-r01-20260702T055403Z-0472d193/engine_logs/tensorrtllm.log
+  t4_engine_log: artifacts/runs/p10-tensorrtllm_t4-smoke-r01-20260702T161929Z-9449e7f9/engine_logs/tensorrtllm_t4.log
+result:
+  status: passed_as_engine_configuration
+  tensorRT_llm_code_support: implemented
+  tensorRT_llm_t4_legacy_support: implemented
+  cpu_tests: passed
+  full_suite_tests: passed
+  hardening_gate: passed
+  p5_p6_p7_p8_regression_baselines: PASS
+  strict_deployment_profile_refusal_preserved: true
+  current_release_gpu_smoke: failed
+  legacy_t4_gpu_smoke: passed
+  current_release_validation_ok: false
+  legacy_t4_validation_ok: true
+  gpu_model: Tesla T4
+  driver_version: 580.159.03
+  cuda_version: "13.0"
+  image_digest: sha256:1532b38814b3faf2affdb5ef01ca91468685d314ffb7e8926a0567595355ed88
+  legacy_t4_image_digest: sha256:4aadb77233d5c4e71a0d3ced59bb972f36067d814bff34b128350a80c3589b9c
+  legacy_t4_tensorRT_llm_version: 0.11.0
+  legacy_t4_model_id: TinyLlama/TinyLlama-1.1B-Chat-v1.0
+  legacy_t4_model_revision: fe8a4ea1ffedaf415f4da2f062534de366a451e6
+  failed_gate_reason: "official TensorRT-LLM runtime exits before health with KeyError: 'sm_75'"
+  official_support_limitation: "Current NVIDIA support matrix does not list Turing/T4."
+  strict_claim_made: false
+  phase_state_updated: true
+  taskboard_updated: true
+  inferno_map_updated: true
+commands:
+  - command: "docker buildx imagetools inspect nvcr.io/nvidia/tensorrt-llm/release:1.3.0rc20"
+    exit_code: 0
+    notes: "Recorded release image digest for pinned config."
+  - command: "uv run pytest -q tests/test_artifact_contract.py tests/test_vllm_remote.py tests/test_study.py"
+    exit_code: 0
+    notes: "41 passed before final full-suite gates."
+  - command: "uv run ruff check src tests"
+    exit_code: 0
+    notes: "Initial focused implementation lint passed before final full-suite gates."
+  - command: "$env:INFERNO_GPU_SSH='[operator supplied]'; $env:PYTHONPATH='src'; uv run python -m inferno.cli study --engine tensorrtllm --config configs/study/tensorrtllm_smoke.yaml"
+    exit_code: 1
+    artifact: artifacts/runs/p10-tensorrtllm-smoke-r01-20260702T055403Z-0472d193
+    notes: "Container launched from pinned NVIDIA image, then exited before health on Tesla T4 with sm_75 runtime architecture failure."
+  - command: "$env:PYTHONPATH='src'; uv run python -m inferno.cli validate --run artifacts/runs/p10-tensorrtllm-smoke-r01-20260702T055403Z-0472d193"
+    exit_code: 1
+    notes: "Expected refusal: status FAILED, health false, stream produced no text."
+  - command: "$env:PYTHONPATH='src'; uv run python -m inferno.cli report --study configs/study/tensorrtllm_smoke.yaml"
+    exit_code: 1
+    artifact: artifacts/studies/tensorrtllm_smoke/report.md
+    notes: "Report artifact written, but command correctly returned nonzero because the run did not validate."
+  - command: "$env:PYTHONPATH='src'; uv run python -m inferno.cli compare --mode engine-configuration --runs artifacts/runs/p10-tensorrtllm-smoke-r01-20260702T055403Z-0472d193"
+    exit_code: 1
+    notes: "Expected refusal: failed validation and fewer than two engines."
+  - command: "docker buildx imagetools inspect nvcr.io/nvidia/tritonserver:24.07-trtllm-python-py3"
+    exit_code: 0
+    notes: "Recorded legacy T4 image digest for pinned config."
+  - command: "direct remote probe of nvcr.io/nvidia/tritonserver:24.07-trtllm-python-py3 with TensorRT-LLM LLM API"
+    exit_code: 0
+    notes: "Confirmed TensorRT-LLM 0.11.0 imports and generates on Tesla T4."
+  - command: "$env:INFERNO_GPU_SSH='[operator supplied]'; $env:PYTHONPATH='src'; uv run python -m inferno.cli study --engine tensorrtllm_t4 --config configs/study/tensorrtllm_t4_smoke.yaml"
+    exit_code: 0
+    artifact: artifacts/runs/p10-tensorrtllm_t4-smoke-r01-20260702T161929Z-9449e7f9
+    notes: "Validated real TensorRT-LLM 0.11.0 legacy T4 LLM API run with TinyLlama."
+  - command: "$env:PYTHONPATH='src'; uv run python -m inferno.cli validate --run artifacts/runs/p10-tensorrtllm_t4-smoke-r01-20260702T161929Z-9449e7f9"
+    exit_code: 0
+  - command: "$env:PYTHONPATH='src'; uv run python -m inferno.cli report --study configs/study/tensorrtllm_t4_smoke.yaml"
+    exit_code: 0
+    artifact: artifacts/studies/tensorrtllm_t4_smoke/report.md
+  - command: "$env:PYTHONPATH='src'; uv run python -m inferno.cli compare --mode engine-configuration --runs \"artifacts/studies/p5_smoke/latest.json artifacts/studies/tensorrtllm_t4_smoke/latest.json\""
+    exit_code: 0
+    artifact: artifacts/compare/engine-configuration-20260702T162232Z/report.md
+  - command: "uv sync --all-groups --frozen"
+    exit_code: 0
+    notes: "Audited 13 packages."
+  - command: "uv run pytest -q"
+    exit_code: 0
+    notes: "62 passed after legacy T4 support and integration updates."
+  - command: "uv run ruff check src tests"
+    exit_code: 0
+  - command: "$env:INFERNO_GPU_SSH='[operator supplied]'; $env:PYTHONPATH='src'; uv run python -m inferno.cli hardening-check --config configs/hardening/p9_hardening.yaml --include-gpu-smoke"
+    exit_code: 0
+    artifact: artifacts/hardening/p9_hardening/report.md
+    notes: "P5/P6/P7/P8 regression baselines PASS and GPU smoke PASS."
+  - command: "$env:PYTHONPATH='src'; uv run python -m inferno.cli compare --mode strict --runs \"artifacts/studies/p5_smoke/latest.json artifacts/studies/profile_local/latest.json\""
+    exit_code: 1
+    notes: "Expected refusal: strict comparison rejects llamacpp and requires vLLM/SGLang only."
+  - command: "git diff --check"
+    exit_code: 0
+    notes: "Only the pre-existing CRLF normalization warning for .inferno/contracts/artifacts/manifest.v1.schema.json was emitted."
+  - command: "git diff --cached --check"
+    exit_code: 0
+  - command: "scoped literal target, host, and local-path scan over P10 committed paths"
+    exit_code: 1
+    notes: "Expected rg no-match exit; no literal GPU target, hostname, or local account path was found."
+  - command: "post-integration git diff --check"
+    exit_code: 0
+  - command: "post-integration git diff --cached --check"
+    exit_code: 0
+limitations:
+  - Current TensorRT-LLM release with Qwen still does not pass on Tesla T4.
+  - Legacy T4 TensorRT-LLM evidence uses TensorRT-LLM 0.11.0, TinyLlama, and the LLM API, not current `trtllm-serve`.
+  - No TensorRT-LLM strict, winner, or current-release Qwen serving claim was made.
+  - Current TensorRT-LLM should be rerun on an officially supported GPU family before making current-release or Qwen claims.
+  - Generated artifacts under artifacts/ remain ignored by Git and are referenced here by relative path only.
+next_task: rerun current TensorRT-LLM Qwen profile on supported NVIDIA GPU hardware when available

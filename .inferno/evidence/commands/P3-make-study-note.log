@@ -1,0 +1,5 @@
+The background PowerShell wrapper emitted an error after `make study` completed
+because it tried to run the literal text EXIT_CODE=$code.
+
+Study evidence is the redacted stdout log plus the explicit follow-up gates:
+all three P3 run validations passed, and `make report` passed.

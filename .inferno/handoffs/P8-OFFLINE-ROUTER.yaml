@@ -1,0 +1,113 @@
+task_id: P8-OFFLINE-ROUTER
+phase: P8
+owner_role: integrator
+base_commit: 202b3d88f3927d885d2a0c31337641bd70cc8a12
+head_commit: uncommitted
+branch: phase/01-vllm-vertical-slice
+owned_paths:
+  - Makefile
+  - configs/router/p8_offline_router.yaml
+  - docs/offline-router.md
+  - src/inferno/cli.py
+  - src/inferno/router.py
+  - tests/test_router.py
+  - artifacts/router/p8_offline_policy_replay/**
+  - .inferno/handoffs/P8-OFFLINE-ROUTER.yaml
+  - INFERNO_MAP.md
+  - .inferno/phase_state.yaml
+  - .inferno/taskboard.yaml
+forbidden_paths:
+  - src/inferno/dashboard/**
+  - live router endpoints
+  - cloud control plane
+  - artifacts/releases/**/raw_streams/**
+  - artifacts/releases/**/engine_logs/**
+  - model weights
+  - literal SSH targets, usernames, hostnames, private IPs, tokens, or private prompts
+implementation:
+  - Added a P8 offline serving-policy replay evaluator, CLI command, Makefile target, config, docs, tests, and artifacts.
+  - Evaluator loads only existing validated study artifacts matching the configured environment fingerprint and comparison type.
+  - Replay groups requests by workload block and uses leave-one-workload-block-out training to avoid random request leakage.
+  - Decision logs include request features, candidate profiles, held-out actuals, train blocks/runs, and policy decisions.
+  - Evaluated static vLLM, static SGLang, transparent heuristic, non-deployable oracle lower bound, and proposed policy.
+  - Omitted static llama.cpp in strict scope because llama.cpp remains deployment-profile only.
+  - Added leakage and ablation checks without adding a live router, endpoint, dashboard, cloud control plane, new engine launch, or P9+ work.
+artifacts:
+  router_latest: artifacts/router/p8_offline_policy_replay/latest.json
+  decision_log: artifacts/router/p8_offline_policy_replay/decision_log.jsonl
+  leakage_check: artifacts/router/p8_offline_policy_replay/leakage_check.json
+  ablation_eval: artifacts/router/p8_offline_policy_replay/ablation_eval.json
+  report: artifacts/router/p8_offline_policy_replay/report.md
+result:
+  status: negative_result_reported
+  compatible_evidence_count: 30
+  replay_request_count: 15
+  holdout_strategy: leave_one_workload_block_out
+  leakage_check: PASS
+  ablation_check: PASS
+  best_static_baseline: static_sglang
+  static_sglang_objective_value: 7904.385147
+  static_vllm_objective_value: 14905.533827
+  proposed_policy_objective_value: 7904.385147
+  improvement_over_best_static_pct: 0.0
+  selection_distribution:
+    proposed_policy:
+      sglang: 15
+    static_sglang:
+      sglang: 15
+    static_vllm:
+      vllm: 15
+  quality:
+    incompatible_selection_count: 0
+    confidence_distribution:
+      low: 3
+      medium: 12
+  cost: UNAVAILABLE
+commands:
+  - command: "uv run pytest -q tests/test_router.py"
+    exit_code: 0
+    notes: "2 passed"
+  - command: "uv run ruff check src/inferno/router.py tests/test_router.py src/inferno/cli.py"
+    exit_code: 0
+  - command: "$env:PYTHONPATH='src'; uv run python -m inferno.cli replay-router --config configs/router/p8_offline_router.yaml"
+    exit_code: 0
+    artifact: artifacts/router/p8_offline_policy_replay/report.md
+  - command: "scoped secret and absolute-path scan over P8-owned code, docs, config, and artifacts"
+    exit_code: 1
+    notes: "rg returned 1 because no matches were found."
+  - command: "uv sync --all-groups --frozen"
+    exit_code: 0
+  - command: "$env:PYTHONPATH='src'; uv run python -m inferno.cli doctor"
+    exit_code: 0
+  - command: "$env:PYTHONPATH='src'; uv run python -m inferno.cli plan-capacity --config configs/planner/p7_capacity.yaml"
+    exit_code: 0
+    artifact: artifacts/planner/p7_capacity_strict_t4_qwen35_2b/report.md
+  - command: "$env:PYTHONPATH='src'; uv run python -m inferno.cli validate --run artifacts/runs/p5-vllm-p5-smoke-r01-20260701T135244Z-049adeba"
+    exit_code: 0
+  - command: "$env:PYTHONPATH='src'; uv run python -m inferno.cli validate --run artifacts/runs/p6-llamacpp-profile-local-r01-20260701T180433Z-6e6969f5"
+    exit_code: 0
+  - command: "$env:PYTHONPATH='src'; uv run python -m inferno.cli compare --mode strict --runs \"artifacts/studies/p5_smoke/latest.json artifacts/studies/profile_local/latest.json\""
+    exit_code: 1
+    notes: "Expected refusal; output included strict comparison rejects llamacpp; use MODE=deployment-profile."
+  - command: "$env:PYTHONPATH='src'; uv run python -c \"from pathlib import Path; from inferno.release import validate_release_package; errors=validate_release_package(Path('artifacts/releases/p5_research_core_v1/redacted')); print(errors); raise SystemExit(1 if errors else 0)\""
+    exit_code: 0
+  - command: "$env:PYTHONPATH='src'; uv run python -c \"import json; from pathlib import Path; from inferno import study; p=Path('artifacts/compare/deployment-profile-20260701T181124Z/report_inputs.json'); data=json.loads(p.read_text()); errors=study.validate_deployment_profile_report_inputs(data, Path.cwd()); print(errors); raise SystemExit(1 if errors else 0)\""
+    exit_code: 0
+  - command: "uv run pytest -q"
+    exit_code: 0
+    notes: "48 passed"
+  - command: "uv run ruff check src tests"
+    exit_code: 0
+  - command: "git diff --check"
+    exit_code: 0
+    notes: "Only the pre-existing CRLF normalization warning for .inferno/contracts/artifacts/manifest.v1.schema.json was emitted."
+  - command: "git diff --cached --check"
+    exit_code: 0
+limitations:
+  - P8 makes no new real-engine readiness claim and ran no GPU command because the phase is offline replay over existing validated artifacts.
+  - Proposed policy did not improve the declared held-out objective over the best static baseline; this is recorded as a negative result.
+  - All held-out requests selected SGLang, so the oracle lower bound matched static SGLang for this evidence set.
+  - Prompt token counts remain unavailable in source artifacts; canonical prompt length uses prompt characters.
+  - Cost remains unavailable because no dated per-candidate price values were supplied.
+  - Structured-output quality support is lower confidence under leave-one-workload-block-out because that workload block is held out.
+next_task: P9 or later only with explicit authorization and scope update

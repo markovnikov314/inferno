@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "study_id": "strict_interactive",
+  "study_type": "strict_engine_comparison",
+  "engines": ["vllm", "sglang"],
+  "environment_block_id": "strict_interactive_block_001",
+  "run_order_seed": 4242,
+  "run_order": [
+    {"engine": "sglang", "repeat_index": 1},
+    {"engine": "vllm", "repeat_index": 1},
+    {"engine": "vllm", "repeat_index": 2},
+    {"engine": "sglang", "repeat_index": 2},
+    {"engine": "sglang", "repeat_index": 3},
+    {"engine": "vllm", "repeat_index": 3}
+  ],
+  "workload_config": "configs/workloads/strict_interactive.yaml",
+  "repeats": 3,
+  "telemetry_cadence_seconds": 0.5,
+  "low_sample_completed_requests": 3,
+  "artifacts_dir": "artifacts/studies/strict_interactive"
+}

@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "workload_id": "smoke_real",
+  "prompt_template_id": "smoke-chat-v1",
+  "seed": 123,
+  "prompt": "Explain continuous batching in one sentence.",
+  "arrival_model": "closed_loop",
+  "cache_state": "cold_per_run",
+  "warmup": {
+    "requests": 0
+  },
+  "measurement": {
+    "requests": 1,
+    "max_runtime_seconds": 300
+  },
+  "sampling": {
+    "temperature": 0,
+    "max_tokens": 96
+  },
+  "retry_policy": "none",
+  "failure_policy": "fail_run"
+}

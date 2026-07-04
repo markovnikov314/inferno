@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "engine": "tensorrtllm",
+  "container_name": "inferno-p10-tensorrtllm",
+  "port": 8090,
+  "image": "nvcr.io/nvidia/tensorrt-llm/release:1.3.0rc20@sha256:1532b38814b3faf2affdb5ef01ca91468685d314ffb7e8926a0567595355ed88",
+  "image_tag_hint": "1.3.0rc20 resolved 2026-07-02",
+  "version_command": [
+    "python3",
+    "-c",
+    "import tensorrt_llm; print(getattr(tensorrt_llm, '__version__', 'unknown'))"
+  ],
+  "command_prefix": ["trtllm-serve", "serve"],
+  "docker_args": [
+    "--ulimit",
+    "memlock=-1",
+    "--ulimit",
+    "stack=67108864",
+    "--shm-size",
+    "32g"
+  ],
+  "env": [],
+  "request_stream_options": false,
+  "served_model_name": "Qwen/Qwen3.5-2B",
+  "model": {
+    "id": "Qwen/Qwen3.5-2B",
+    "revision": "15852e8c16360a2fea060d615a32b45270f8a8fc",
+    "tokenizer_id": "Qwen/Qwen3.5-2B",
+    "tokenizer_revision": "15852e8c16360a2fea060d615a32b45270f8a8fc",
+    "tokenizer_format": "huggingface",
+    "weight_format": "huggingface",
+    "weight_precision": "pytorch_backend_auto"
+  },
+  "launch_args": [
+    "--backend",
+    "pytorch",
+    "--max_batch_size",
+    "1",
+    "--max_num_tokens",
+    "512",
+    "--max_seq_len",
+    "512",
+    "--tp_size",
+    "1",
+    "--pp_size",
+    "1",
+    "--kv_cache_free_gpu_memory_fraction",
+    "0.80",
+    "--trust_remote_code",
+    "--no-telemetry"
+  ]
+}

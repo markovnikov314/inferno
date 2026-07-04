@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "study_id": "ollama_smoke",
+  "study_type": "deployment_profile_comparison",
+  "engines": ["ollama"],
+  "phase": "P11",
+  "environment_block_id": "p11_ollama_profile_block_001",
+  "run_order_seed": 11001,
+  "run_order": [
+    {"engine": "ollama", "repeat_index": 1}
+  ],
+  "workload_config": "configs/workloads/ollama_smoke.yaml",
+  "repeats": 1,
+  "telemetry_cadence_seconds": 0.5,
+  "low_sample_completed_requests": 3,
+  "artifacts_dir": "artifacts/studies/ollama_smoke"
+}

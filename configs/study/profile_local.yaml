@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "study_id": "profile_local",
+  "study_type": "deployment_profile_comparison",
+  "engines": ["llamacpp"],
+  "phase": "P6",
+  "environment_block_id": "p6_deployment_profile_block_001",
+  "run_order_seed": 66101,
+  "run_order": [
+    {"engine": "llamacpp", "repeat_index": 1}
+  ],
+  "workload_config": "configs/workloads/profile_local.yaml",
+  "repeats": 1,
+  "telemetry_cadence_seconds": 0.5,
+  "low_sample_completed_requests": 1,
+  "artifacts_dir": "artifacts/studies/profile_local"
+}

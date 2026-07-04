@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "engine": "tensorrtllm_t4",
+  "run_mode": "llm_api_once",
+  "container_name": "inferno-p10-tensorrtllm-t4",
+  "port": 8092,
+  "image": "nvcr.io/nvidia/tritonserver:24.07-trtllm-python-py3@sha256:4aadb77233d5c4e71a0d3ced59bb972f36067d814bff34b128350a80c3589b9c",
+  "image_tag_hint": "24.07-trtllm-python-py3; TensorRT-LLM 0.11.0 observed on 2026-07-02",
+  "version_command": [
+    "python3",
+    "-c",
+    "import tensorrt_llm; print(getattr(tensorrt_llm, '__version__', 'unknown'))"
+  ],
+  "command_prefix": [],
+  "docker_args": [
+    "--ulimit",
+    "memlock=-1",
+    "--ulimit",
+    "stack=67108864",
+    "--shm-size",
+    "8g"
+  ],
+  "env": [],
+  "request_stream_options": false,
+  "served_model_name": "Qwen/Qwen3.5-2B",
+  "dtype": "float16",
+  "model": {
+    "id": "Qwen/Qwen3.5-2B",
+    "revision": "15852e8c16360a2fea060d615a32b45270f8a8fc",
+    "tokenizer_id": "Qwen/Qwen3.5-2B",
+    "tokenizer_revision": "15852e8c16360a2fea060d615a32b45270f8a8fc",
+    "tokenizer_format": "huggingface",
+    "weight_format": "huggingface",
+    "weight_precision": "float16"
+  },
+  "build_config": {
+    "max_batch_size": 1,
+    "opt_batch_size": 1,
+    "max_input_len": 128,
+    "max_seq_len": 160,
+    "max_num_tokens": 160,
+    "opt_num_tokens": 64
+  },
+  "launch_args": [
+    "--dtype",
+    "float16",
+    "--max_batch_size",
+    "1",
+    "--max_input_len",
+    "128",
+    "--max_seq_len",
+    "160",
+    "--max_num_tokens",
+    "160",
+    "--tensor_parallel_size",
+    "1"
+  ]
+}

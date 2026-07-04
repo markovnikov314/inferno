@@ -1,0 +1,115 @@
+task_id: P7-CAPACITY-PLANNER
+phase: P7
+owner_role: integrator
+base_commit: 202b3d88f3927d885d2a0c31337641bd70cc8a12
+head_commit: uncommitted
+branch: phase/01-vllm-vertical-slice
+owned_paths:
+  - Makefile
+  - configs/planner/p7_capacity.yaml
+  - docs/capacity-planner.md
+  - src/inferno/cli.py
+  - src/inferno/planner.py
+  - tests/test_planner.py
+  - artifacts/planner/p7_capacity_strict_t4_qwen35_2b/**
+  - .inferno/handoffs/P7-CAPACITY-PLANNER.yaml
+  - INFERNO_MAP.md
+  - .inferno/phase_state.yaml
+  - .inferno/taskboard.yaml
+forbidden_paths:
+  - src/inferno/router/**
+  - src/inferno/dashboard/**
+  - artifacts/releases/**/raw_streams/**
+  - artifacts/releases/**/engine_logs/**
+  - model weights
+  - literal SSH targets, usernames, hostnames, private IPs, tokens, or private prompts
+implementation:
+  - Added a P7 offline capacity planner CLI command, Makefile target, config, docs, and tests.
+  - Planner loads only validated existing study artifacts whose environment fingerprint and declared comparison type match the request.
+  - Planner uses nearest-neighbor distance and bounded range checks, with visible IN_RANGE, INTERPOLATED, EXTRAPOLATED, or UNAVAILABLE statuses.
+  - Planner records nearest evidence, distance components, observed ranges, holdout error, confidence, and cost availability.
+  - P7 does not launch engines, change artifact contracts, weaken strict gates, add dashboards, or add P8 router/live-routing code.
+artifacts:
+  planner_latest: artifacts/planner/p7_capacity_strict_t4_qwen35_2b/latest.json
+  planner_holdout: artifacts/planner/p7_capacity_strict_t4_qwen35_2b/holdout_eval.json
+  planner_report: artifacts/planner/p7_capacity_strict_t4_qwen35_2b/report.md
+  p5_release_manifest: artifacts/releases/p5_research_core_v1/redacted/manifest.json
+  p6_deployment_profile_report: artifacts/compare/deployment-profile-20260701T181124Z/report.md
+result:
+  status: passed
+  compatible_evidence_count: 30
+  candidates:
+    - id: sglang
+      status: EXTRAPOLATED
+      confidence: low
+      nearest_run: artifacts/runs/p5-sglang-p5-decode-heavy-r02-20260701T152830Z-ea0dbf35
+    - id: vllm
+      status: EXTRAPOLATED
+      confidence: low
+      nearest_run: artifacts/runs/p5-vllm-p5-decode-heavy-r02-20260701T150954Z-2e5fb55b
+  holdout:
+    baseline: same-candidate median of remaining validated runs
+    sample_count: 30
+    nearest_neighbor_ttft_mae_ms: 293.949957
+    baseline_ttft_mae_ms: 847.055783
+    ttft_improvement_over_baseline_pct: 65.29745
+    nearest_neighbor_e2e_mae_ms: 285.532217
+    baseline_e2e_mae_ms: 1696.915057
+    e2e_improvement_over_baseline_pct: 83.173453
+commands:
+  - command: "uv run pytest -q tests/test_planner.py"
+    exit_code: 0
+    notes: "2 passed"
+  - command: "uv run ruff check src/inferno/planner.py tests/test_planner.py src/inferno/cli.py"
+    exit_code: 0
+  - command: "PYTHONPATH=src uv run python -m inferno.cli plan-capacity --config configs/planner/p7_capacity.yaml"
+    exit_code: 1
+    notes: "PowerShell rejected POSIX-style env prefix; rerun with PowerShell env syntax passed."
+  - command: "$env:PYTHONPATH='src'; uv run python -m inferno.cli plan-capacity --config configs/planner/p7_capacity.yaml"
+    exit_code: 0
+    artifact: artifacts/planner/p7_capacity_strict_t4_qwen35_2b/report.md
+  - command: "$env:PYTHONPATH='src'; uv run python -m inferno.cli validate --run artifacts/runs/p5-vllm-p5-smoke-r01-20260701T135244Z-049adeba"
+    exit_code: 0
+  - command: "$env:PYTHONPATH='src'; uv run python -m inferno.cli validate --run artifacts/runs/p6-llamacpp-profile-local-r01-20260701T180433Z-6e6969f5"
+    exit_code: 0
+  - command: "$env:PYTHONPATH='src'; uv run python -m inferno.cli compare --mode strict --runs \"artifacts/studies/p5_smoke/latest.json artifacts/studies/profile_local/latest.json\""
+    exit_code: 1
+    notes: "Expected refusal; output included strict comparison rejects llamacpp; use MODE=deployment-profile."
+  - command: "$env:PYTHONPATH='src'; uv run python -c \"from pathlib import Path; from inferno.release import validate_release_package; errors=validate_release_package(Path('artifacts/releases/p5_research_core_v1/redacted')); print(errors); raise SystemExit(1 if errors else 0)\""
+    exit_code: 0
+  - command: "$env:PYTHONPATH='src'; uv run python -c \"import json; from pathlib import Path; from inferno import study; p=Path('artifacts/compare/deployment-profile-20260701T181124Z/report_inputs.json'); data=json.loads(p.read_text()); errors=study.validate_deployment_profile_report_inputs(data, Path.cwd()); print(errors); raise SystemExit(1 if errors else 0)\""
+    exit_code: 0
+  - command: "uv sync --all-groups --frozen"
+    exit_code: 0
+  - command: "make doctor"
+    exit_code: 1
+    notes: "Windows shell did not have make available."
+  - command: "$env:PYTHONPATH='src'; uv run python -m inferno.cli doctor"
+    exit_code: 0
+  - command: "uv run pytest -q tests/test_planner.py tests/test_study.py tests/test_artifact_contract.py"
+    exit_code: 0
+    notes: "31 passed"
+  - command: "uv run pytest -q tests/test_artifact_contract.py"
+    exit_code: 0
+    notes: "13 passed"
+  - command: "uv run pytest -q"
+    exit_code: 0
+    notes: "46 passed"
+  - command: "uv run ruff check src tests"
+    exit_code: 0
+  - command: "literal target and private material scan over P7-owned paths"
+    exit_code: 1
+    notes: "No matches in P7-owned code, docs, config, or planner artifacts."
+  - command: "git diff --check"
+    exit_code: 0
+    notes: "Only the pre-existing CRLF normalization warning for .inferno/contracts/artifacts/manifest.v1.schema.json was emitted."
+  - command: "git diff --cached --check"
+    exit_code: 0
+limitations:
+  - INFERNO_GPU_SSH was missing from the shell, so no new P7 GPU preflight was run.
+  - P7 uses existing validated P5/P6 real-run artifacts; it does not create new real-engine evidence.
+  - Requested target traffic is outside stored evidence range, so both strict candidates are EXTRAPOLATED with no hard recommendation.
+  - Prompt token counts are unavailable because current run artifacts store prompt characters and prompt hashes, not canonical prompt token counts.
+  - Cost remains unavailable because no dated per-candidate price values were supplied in the P7 config.
+  - make is unavailable in the Windows shell; direct CLI and pytest equivalents were run.
+next_task: P8 only with explicit offline-router authorization

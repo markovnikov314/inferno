@@ -1,0 +1,115 @@
+task_id: P5-RESEARCH-CORE
+phase: P5
+owner_role: integrator
+base_commit: unborn
+head_commit: uncommitted
+owned_paths:
+  - Makefile
+  - INFERNO_MAP.md
+  - .inferno/phase_state.yaml
+  - .inferno/taskboard.yaml
+  - .inferno/contracts/artifacts/manifest.v1.schema.json
+  - .inferno/handoffs/P5-RESEARCH-CORE.yaml
+  - configs/workloads/p5_*.yaml
+  - configs/study/p5_*.yaml
+  - docs/*.md
+  - src/inferno/artifact_contract.py
+  - src/inferno/cli.py
+  - src/inferno/release.py
+  - src/inferno/study.py
+  - src/inferno/vllm_remote.py
+  - tests/test_release.py
+  - tests/test_study.py
+forbidden_paths:
+  - src/inferno/planner/**
+  - src/inferno/router/**
+  - infra/engines/llamacpp/**
+  - artifacts/releases/**/raw_streams/**
+  - artifacts/releases/**/engine_logs/**
+commands:
+  - command: "uv sync --all-groups --frozen"
+    exit_code: 0
+  - command: "make doctor"
+    exit_code: 0
+    artifact: .inferno/evidence/preflight/doctor.json
+  - command: "INFERNO_GPU_SSH=[operator supplied] make doctor-gpu"
+    exit_code: 0
+    artifact: .inferno/evidence/preflight/doctor-gpu.json
+  - command: "INFERNO_GPU_SSH=[operator supplied] make study ENGINE=vllm CONFIG=configs/study/p5_smoke.yaml"
+    exit_code: 0
+  - command: "INFERNO_GPU_SSH=[operator supplied] make study ENGINE=sglang CONFIG=configs/study/p5_smoke.yaml"
+    exit_code: 0
+  - command: "make compare MODE=strict RUNS=\"artifacts/studies/p5_smoke/latest.json\""
+    exit_code: 0
+    artifact: artifacts/compare/strict-20260701T142431Z/report.md
+  - command: "INFERNO_GPU_SSH=[operator supplied] make study ENGINE=vllm CONFIG=configs/study/p5_interactive.yaml"
+    exit_code: 0
+  - command: "INFERNO_GPU_SSH=[operator supplied] make study ENGINE=sglang CONFIG=configs/study/p5_interactive.yaml"
+    exit_code: 1
+    note: "First attempt hit one SSH health-check timeout; timeout handling was patched and the container was stopped before retry."
+  - command: "INFERNO_GPU_SSH=[operator supplied] make down ENGINE=sglang"
+    exit_code: 0
+  - command: "INFERNO_GPU_SSH=[operator supplied] make study ENGINE=sglang CONFIG=configs/study/p5_interactive.yaml"
+    exit_code: 0
+  - command: "make compare MODE=strict RUNS=\"artifacts/studies/p5_interactive/latest.json\""
+    exit_code: 0
+    artifact: artifacts/compare/strict-20260701T150157Z/report.md
+  - command: "INFERNO_GPU_SSH=[operator supplied] make study ENGINE=vllm CONFIG=configs/study/p5_decode_heavy.yaml"
+    exit_code: 0
+  - command: "INFERNO_GPU_SSH=[operator supplied] make study ENGINE=sglang CONFIG=configs/study/p5_decode_heavy.yaml"
+    exit_code: 0
+  - command: "make compare MODE=strict RUNS=\"artifacts/studies/p5_decode_heavy/latest.json\""
+    exit_code: 0
+    artifact: artifacts/compare/strict-20260701T153426Z/report.md
+  - command: "INFERNO_GPU_SSH=[operator supplied] make study ENGINE=vllm CONFIG=configs/study/p5_long_context_lite.yaml"
+    exit_code: 0
+  - command: "INFERNO_GPU_SSH=[operator supplied] make study ENGINE=sglang CONFIG=configs/study/p5_long_context_lite.yaml"
+    exit_code: 0
+  - command: "make compare MODE=strict RUNS=\"artifacts/studies/p5_long_context_lite/latest.json\""
+    exit_code: 0
+    artifact: artifacts/compare/strict-20260701T160546Z/report.md
+  - command: "INFERNO_GPU_SSH=[operator supplied] make study ENGINE=vllm CONFIG=configs/study/p5_structured_output_lite.yaml"
+    exit_code: 0
+  - command: "INFERNO_GPU_SSH=[operator supplied] make study ENGINE=sglang CONFIG=configs/study/p5_structured_output_lite.yaml"
+    exit_code: 0
+  - command: "make compare MODE=strict RUNS=\"artifacts/studies/p5_structured_output_lite/latest.json\""
+    exit_code: 0
+    artifact: artifacts/compare/strict-20260701T163814Z/report.md
+  - command: "make release-package MODE=redacted STUDY=configs/study/p5_research_core.yaml"
+    exit_code: 0
+    artifact: artifacts/releases/p5_research_core_v1/redacted/manifest.json
+  - command: "make compare MODE=strict RUNS=\"artifacts/studies/strict_interactive/latest.json\""
+    exit_code: 0
+    artifact: artifacts/compare/strict-20260701T163908Z/report.md
+  - command: "make test-contracts"
+    exit_code: 0
+  - command: "make test"
+    exit_code: 0
+  - command: "uv run ruff check src tests"
+    exit_code: 0
+  - command: "git diff --check"
+    exit_code: 0
+  - command: "git diff --cached --check"
+    exit_code: 0
+artifacts:
+  - artifacts/studies/p5_smoke/latest.json
+  - artifacts/studies/p5_interactive/latest.json
+  - artifacts/studies/p5_decode_heavy/latest.json
+  - artifacts/studies/p5_long_context_lite/latest.json
+  - artifacts/studies/p5_structured_output_lite/latest.json
+  - artifacts/releases/p5_research_core_v1/redacted/manifest.json
+  - artifacts/releases/p5_research_core_v1/redacted/reports/p5_smoke/report.md
+  - artifacts/releases/p5_research_core_v1/redacted/reports/p5_interactive/report.md
+  - artifacts/releases/p5_research_core_v1/redacted/reports/p5_decode_heavy/report.md
+  - artifacts/releases/p5_research_core_v1/redacted/reports/p5_long_context_lite/report.md
+  - artifacts/releases/p5_research_core_v1/redacted/reports/p5_structured_output_lite/report.md
+release_package:
+  release_id: p5_research_core_v1
+  mode: redacted
+  manifest: artifacts/releases/p5_research_core_v1/redacted/manifest.json
+  file_count: 164
+limitations:
+  - "LOW_SAMPLE labels are expected because each repeat currently measures one request."
+  - "Public package excludes raw streams, raw prompts, engine logs, private target details, and model weights."
+  - "One SGLang interactive attempt failed on an SSH health-check timeout; retry passed after timeout handling was patched."
+next_task: P6 only with explicit deployment-profile authorization

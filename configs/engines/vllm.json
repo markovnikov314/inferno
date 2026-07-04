@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "engine": "vllm",
+  "container_name": "inferno-p1-vllm",
+  "port": 8000,
+  "image": "vllm/vllm-openai@sha256:251eba5cc7c12fed0b75da22a9240e582b1c9e39f6fbc064f86781b963bd814f",
+  "image_tag_hint": "latest pushed 2026-06-29",
+  "env": [
+    "VLLM_USE_FLASHINFER_SAMPLER=0",
+    "VLLM_ENABLE_FLA_PACKED_RECURRENT_DECODE=0",
+    "VLLM_ENGINE_READY_TIMEOUT_S=240"
+  ],
+  "served_model_name": "Qwen/Qwen3.5-2B",
+  "model": {
+    "id": "Qwen/Qwen3.5-2B",
+    "revision": "15852e8c16360a2fea060d615a32b45270f8a8fc",
+    "tokenizer_id": "Qwen/Qwen3.5-2B",
+    "tokenizer_revision": "15852e8c16360a2fea060d615a32b45270f8a8fc"
+  },
+  "launch_args": [
+    "--dtype",
+    "half",
+    "--max-model-len",
+    "256",
+    "--gpu-memory-utilization",
+    "0.80",
+    "--max-num-seqs",
+    "1",
+    "--language-model-only",
+    "--enforce-eager",
+    "--trust-remote-code"
+  ]
+}

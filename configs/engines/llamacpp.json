@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "engine": "llamacpp",
+  "container_name": "inferno-p6-llamacpp",
+  "port": 8080,
+  "image": "ghcr.io/ggml-org/llama.cpp:server-cuda@sha256:62a1d4e144789aa3dd6948d350388fd4b9ac4d12744f33213a89c4e5a9af25df",
+  "image_tag_hint": "server-cuda index digest resolved 2026-07-01",
+  "version_command": ["/app/llama-server", "--version"],
+  "env": [],
+  "request_stream_options": false,
+  "served_model_name": "lmstudio-community/Qwen3.5-2B-GGUF:Q4_K_M",
+  "model": {
+    "id": "lmstudio-community/Qwen3.5-2B-GGUF",
+    "revision": "bb84e11355a036e28f080c7793fa6d22b7c4e344",
+    "tokenizer_id": "gguf:lmstudio-community/Qwen3.5-2B-GGUF/Qwen3.5-2B-Q4_K_M.gguf",
+    "tokenizer_revision": "bb84e11355a036e28f080c7793fa6d22b7c4e344",
+    "tokenizer_format": "gguf_embedded",
+    "weight_format": "gguf",
+    "weight_precision": "quantized",
+    "quantization": "Q4_K_M",
+    "gguf_repo": "lmstudio-community/Qwen3.5-2B-GGUF",
+    "gguf_filename": "Qwen3.5-2B-Q4_K_M.gguf",
+    "gguf_revision": "bb84e11355a036e28f080c7793fa6d22b7c4e344"
+  },
+  "gguf": {
+    "repo_id": "lmstudio-community/Qwen3.5-2B-GGUF",
+    "revision": "bb84e11355a036e28f080c7793fa6d22b7c4e344",
+    "filename": "Qwen3.5-2B-Q4_K_M.gguf",
+    "quantization": "Q4_K_M",
+    "url": "https://huggingface.co/lmstudio-community/Qwen3.5-2B-GGUF/resolve/bb84e11355a036e28f080c7793fa6d22b7c4e344/Qwen3.5-2B-Q4_K_M.gguf"
+  },
+  "launch_args": [
+    "--ctx-size",
+    "512",
+    "--n-gpu-layers",
+    "all",
+    "--parallel",
+    "1",
+    "--no-webui"
+  ]
+}

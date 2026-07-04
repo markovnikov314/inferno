@@ -1,0 +1,19 @@
+task_id: P0-RESEARCH
+phase: P0
+owner_role: research_scout
+base_commit: unborn-branch-no-commit
+head_commit: working-tree
+owned_paths:
+  - .inferno/evidence/research/P0-RESEARCH.md
+forbidden_paths:
+  - src/**
+  - tests/**
+  - INFERNO_MAP.md
+  - .inferno/phase_state.yaml
+  - .inferno/taskboard.yaml
+commands: []
+artifacts:
+  - .inferno/evidence/research/P0-RESEARCH.md
+limitations:
+  - Later-phase vLLM and SGLang notes are pinning guidance only; no engine was installed in P0.
+next_task: P0-INTEGRATE

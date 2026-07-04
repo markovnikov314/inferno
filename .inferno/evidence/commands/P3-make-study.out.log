@@ -1,0 +1,4 @@
+uv run python -m inferno.cli study --engine "vllm" --config "configs/study/vllm_smoke.yaml"
+artifacts/runs/p3-vllm-smoke-r01-20260701T034056Z-bcdcd3fc
+artifacts/runs/p3-vllm-smoke-r02-20260701T035023Z-73cab63e
+artifacts/runs/p3-vllm-smoke-r03-20260701T035950Z-026a80b7

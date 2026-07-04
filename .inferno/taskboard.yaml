@@ -1,0 +1,432 @@
+schema_version: 1
+phase: P11
+tasks:
+  - id: P5-CONFIGS
+    title: P5 strict workload and study configs
+    owner_role: implementation_specialist
+    state: ACCEPTED
+    owned_paths:
+      - configs/workloads/p5_*.yaml
+      - configs/study/p5_*.yaml
+    forbidden_paths:
+      - src/inferno/planner/**
+      - src/inferno/router/**
+      - infra/engines/llamacpp/**
+  - id: P5-REPORT-PACKAGE
+    title: P5 report validation and redacted release package tooling
+    owner_role: implementation_specialist
+    state: ACCEPTED
+    owned_paths:
+      - Makefile
+      - src/inferno/cli.py
+      - src/inferno/release.py
+      - src/inferno/study.py
+      - src/inferno/vllm_remote.py
+      - tests/test_release.py
+      - tests/test_study.py
+    forbidden_paths:
+      - src/inferno/planner/**
+      - src/inferno/router/**
+      - infra/engines/llamacpp/**
+  - id: P5-DOCS
+    title: v1.0 methodology, limitations, reproducibility, and redaction docs
+    owner_role: implementation_specialist
+    state: ACCEPTED
+    owned_paths:
+      - docs/methodology.md
+      - docs/limitations.md
+      - docs/reproducibility.md
+      - docs/privacy-and-redaction.md
+    forbidden_paths:
+      - docs/deployment-profile/**
+  - id: P5-REAL-STUDIES
+    title: Five-family real strict vLLM/SGLang study execution
+    owner_role: implementation_specialist
+    state: ACCEPTED
+    owned_paths:
+      - artifacts/studies/p5_*/latest.json
+      - artifacts/runs/p5-*
+      - artifacts/compare/strict-20260701T142431Z/**
+      - artifacts/compare/strict-20260701T150157Z/**
+      - artifacts/compare/strict-20260701T153426Z/**
+      - artifacts/compare/strict-20260701T160546Z/**
+      - artifacts/compare/strict-20260701T163814Z/**
+    forbidden_paths:
+      - artifacts/runs/*llamacpp*
+      - artifacts/compare/*deployment*
+  - id: P5-RELEASE
+    title: Redacted v1.0 Research Core package
+    owner_role: implementation_specialist
+    state: ACCEPTED
+    owned_paths:
+      - artifacts/releases/p5_research_core_v1/redacted/**
+    forbidden_paths:
+      - artifacts/releases/**/raw_streams/**
+      - artifacts/releases/**/engine_logs/**
+  - id: P5-INTEGRATE
+    title: Integrate P5 status and evidence
+    owner_role: integrator
+    state: INTEGRATED
+    owned_paths:
+      - INFERNO_MAP.md
+      - .inferno/phase_state.yaml
+      - .inferno/taskboard.yaml
+      - .inferno/handoffs/P5-RESEARCH-CORE.yaml
+    forbidden_paths:
+      - src/inferno/planner/**
+      - src/inferno/router/**
+      - infra/engines/llamacpp/**
+  - id: P6-LLAMACPP-CONFIG
+    title: llama.cpp GGUF deployment-profile config
+    owner_role: implementation_specialist
+    state: ACCEPTED
+    owned_paths:
+      - configs/engines/llamacpp.json
+      - configs/workloads/profile_local.yaml
+      - configs/study/profile_local.yaml
+    forbidden_paths:
+      - src/inferno/planner/**
+      - src/inferno/router/**
+      - src/inferno/dashboard/**
+      - artifacts/releases/**/raw_streams/**
+      - artifacts/releases/**/engine_logs/**
+  - id: P6-CONTRACT-RUNNER
+    title: P6 artifact contract and llama.cpp runner extension
+    owner_role: implementation_specialist
+    state: ACCEPTED
+    owned_paths:
+      - .inferno/contracts/artifacts/manifest.v1.schema.json
+      - src/inferno/artifact_contract.py
+      - src/inferno/vllm_remote.py
+      - tests/test_artifact_contract.py
+      - tests/test_vllm_remote.py
+    forbidden_paths:
+      - src/inferno/planner/**
+      - src/inferno/router/**
+      - src/inferno/dashboard/**
+      - artifacts/releases/**/raw_streams/**
+      - artifacts/releases/**/engine_logs/**
+  - id: P6-DEPLOYMENT-PROFILE-COMPARE
+    title: Deployment-profile comparison mode and docs
+    owner_role: implementation_specialist
+    state: ACCEPTED
+    owned_paths:
+      - docs/deployment-profile.md
+      - src/inferno/study.py
+      - tests/test_study.py
+    forbidden_paths:
+      - src/inferno/planner/**
+      - src/inferno/router/**
+      - src/inferno/dashboard/**
+      - artifacts/releases/**/raw_streams/**
+      - artifacts/releases/**/engine_logs/**
+  - id: P6-REAL-STUDY
+    title: Real llama.cpp deployment-profile study execution
+    owner_role: implementation_specialist
+    state: ACCEPTED
+    owned_paths:
+      - artifacts/runs/p6-llamacpp-profile-local-r01-20260701T180433Z-6e6969f5/**
+      - artifacts/studies/profile_local/latest.json
+      - artifacts/compare/deployment-profile-20260701T181124Z/**
+    forbidden_paths:
+      - artifacts/releases/**/raw_streams/**
+      - artifacts/releases/**/engine_logs/**
+      - artifacts/compare/strict-*/**
+  - id: P6-INTEGRATE
+    title: Integrate P6 status and evidence
+    owner_role: integrator
+    state: INTEGRATED
+    owned_paths:
+      - INFERNO_MAP.md
+      - .inferno/phase_state.yaml
+      - .inferno/taskboard.yaml
+      - .inferno/handoffs/P6-DEPLOYMENT-PROFILE.yaml
+    forbidden_paths:
+      - src/inferno/planner/**
+      - src/inferno/router/**
+      - src/inferno/dashboard/**
+      - artifacts/releases/**/raw_streams/**
+      - artifacts/releases/**/engine_logs/**
+  - id: P7-PLANNER-IMPLEMENTATION
+    title: Trace-grounded capacity planner implementation
+    owner_role: implementation_specialist
+    state: ACCEPTED
+    owned_paths:
+      - src/inferno/planner.py
+      - src/inferno/cli.py
+      - Makefile
+      - configs/planner/p7_capacity.yaml
+      - tests/test_planner.py
+    forbidden_paths:
+      - src/inferno/router/**
+      - src/inferno/dashboard/**
+      - artifacts/releases/**/raw_streams/**
+      - artifacts/releases/**/engine_logs/**
+      - literal SSH targets, usernames, hostnames, private IPs, tokens, or private prompts
+  - id: P7-DOCS
+    title: Capacity planner documentation
+    owner_role: implementation_specialist
+    state: ACCEPTED
+    owned_paths:
+      - docs/capacity-planner.md
+    forbidden_paths:
+      - docs/deployment-profile.md
+      - docs/privacy-and-redaction.md
+      - src/inferno/router/**
+      - src/inferno/dashboard/**
+  - id: P7-EVIDENCE
+    title: Capacity planner artifact generation and regression gates
+    owner_role: implementation_specialist
+    state: ACCEPTED
+    owned_paths:
+      - artifacts/planner/p7_capacity_strict_t4_qwen35_2b/**
+      - .inferno/handoffs/P7-CAPACITY-PLANNER.yaml
+    forbidden_paths:
+      - artifacts/releases/**/raw_streams/**
+      - artifacts/releases/**/engine_logs/**
+      - artifacts/runs/**
+      - artifacts/studies/**
+      - artifacts/compare/strict-*/**
+      - artifacts/compare/deployment-profile-*/**
+  - id: P7-INTEGRATE
+    title: Integrate P7 status and evidence
+    owner_role: integrator
+    state: INTEGRATED
+    owned_paths:
+      - INFERNO_MAP.md
+      - .inferno/phase_state.yaml
+      - .inferno/taskboard.yaml
+      - .inferno/handoffs/P7-CAPACITY-PLANNER.yaml
+    forbidden_paths:
+      - src/inferno/router/**
+      - src/inferno/dashboard/**
+      - artifacts/releases/**/raw_streams/**
+      - artifacts/releases/**/engine_logs/**
+  - id: P8-ROUTER-IMPLEMENTATION
+    title: Offline serving-policy replay evaluator
+    owner_role: implementation_specialist
+    state: ACCEPTED
+    owned_paths:
+      - Makefile
+      - configs/router/p8_offline_router.yaml
+      - src/inferno/cli.py
+      - src/inferno/router.py
+      - tests/test_router.py
+    forbidden_paths:
+      - src/inferno/dashboard/**
+      - live router endpoints
+      - cloud control plane
+      - artifacts/releases/**/raw_streams/**
+      - artifacts/releases/**/engine_logs/**
+      - literal SSH targets, usernames, hostnames, private IPs, tokens, or private prompts
+  - id: P8-DOCS
+    title: Offline router replay documentation
+    owner_role: implementation_specialist
+    state: ACCEPTED
+    owned_paths:
+      - docs/offline-router.md
+    forbidden_paths:
+      - docs/deployment-profile.md
+      - docs/privacy-and-redaction.md
+      - src/inferno/dashboard/**
+      - live router endpoints
+  - id: P8-EVIDENCE
+    title: Offline router replay artifacts and regression gates
+    owner_role: implementation_specialist
+    state: ACCEPTED
+    owned_paths:
+      - artifacts/router/p8_offline_policy_replay/**
+      - .inferno/handoffs/P8-OFFLINE-ROUTER.yaml
+    forbidden_paths:
+      - artifacts/releases/**/raw_streams/**
+      - artifacts/releases/**/engine_logs/**
+      - artifacts/runs/**
+      - artifacts/studies/**
+      - artifacts/compare/strict-*/**
+      - artifacts/compare/deployment-profile-*/**
+      - live router endpoints
+  - id: P8-INTEGRATE
+    title: Integrate P8 status and evidence
+    owner_role: integrator
+    state: INTEGRATED
+    owned_paths:
+      - INFERNO_MAP.md
+      - .inferno/phase_state.yaml
+      - .inferno/taskboard.yaml
+      - .inferno/handoffs/P8-OFFLINE-ROUTER.yaml
+    forbidden_paths:
+      - src/inferno/dashboard/**
+      - artifacts/releases/**/raw_streams/**
+      - artifacts/releases/**/engine_logs/**
+      - live router endpoints
+      - P9+ scope
+  - id: P9-HARDENING-IMPLEMENTATION
+    title: Hardening command, config, docs, and CPU fake tests
+    owner_role: implementation_specialist
+    state: ACCEPTED
+    owned_paths:
+      - Makefile
+      - configs/hardening/p9_hardening.yaml
+      - docs/hardening.md
+      - src/inferno/cli.py
+      - src/inferno/hardening.py
+      - tests/test_hardening.py
+    forbidden_paths:
+      - live router endpoints
+      - src/inferno/dashboard/**
+      - cloud control plane
+      - new engine adapters
+      - benchmark runners
+      - literal SSH targets, usernames, hostnames, private IPs, tokens, or private prompts
+  - id: P9-EVIDENCE
+    title: Hardening artifacts and GPU-gated smoke evidence
+    owner_role: implementation_specialist
+    state: ACCEPTED
+    owned_paths:
+      - artifacts/hardening/p9_hardening/**
+    forbidden_paths:
+      - artifacts/releases/**/raw_streams/**
+      - artifacts/releases/**/engine_logs/**
+      - artifacts/runs/**
+      - artifacts/studies/**
+      - artifacts/compare/strict-*/**
+      - artifacts/compare/deployment-profile-*/**
+      - model weights
+      - literal SSH targets, usernames, hostnames, private IPs, tokens, or private prompts
+  - id: P9-INTEGRATE
+    title: Integrate P9 status and evidence
+    owner_role: integrator
+    state: INTEGRATED
+    owned_paths:
+      - INFERNO_MAP.md
+      - .inferno/phase_state.yaml
+      - .inferno/taskboard.yaml
+      - .inferno/adr/ADR-0002-p9-hardening.md
+      - .inferno/handoffs/P9-HARDENING.yaml
+    forbidden_paths:
+      - live router endpoints
+      - src/inferno/dashboard/**
+      - cloud control plane
+      - new engine adapters
+      - benchmark runners
+      - artifacts/releases/**/raw_streams/**
+      - artifacts/releases/**/engine_logs/**
+      - literal SSH targets, usernames, hostnames, private IPs, tokens, or private prompts
+      - P10+ scope
+  - id: P10-TENSORRTLLM-CURRENT
+    title: Current TensorRT-LLM profile for supported newer GPUs
+    owner_role: implementation_specialist
+    state: ACCEPTED_WITH_NEGATIVE_T4_EVIDENCE
+    owned_paths:
+      - configs/engines/tensorrtllm.json
+      - configs/workloads/tensorrtllm_smoke.yaml
+      - configs/study/tensorrtllm_smoke.yaml
+      - docs/tensorrt-llm.md
+      - artifacts/runs/p10-tensorrtllm-smoke-r01-20260702T055403Z-0472d193/**
+    forbidden_paths:
+      - strict engine-only claims
+      - live router endpoints
+      - dashboards
+      - cloud control plane
+      - literal SSH targets, usernames, hostnames, private IPs, tokens, or private prompts
+  - id: P10-TENSORRTLLM-T4-LEGACY
+    title: Legacy TensorRT-LLM T4 engine-configuration profile
+    owner_role: implementation_specialist
+    state: ACCEPTED
+    owned_paths:
+      - configs/engines/tensorrtllm_t4.json
+      - configs/workloads/tensorrtllm_t4_smoke.yaml
+      - configs/study/tensorrtllm_t4_smoke.yaml
+      - src/inferno/artifact_contract.py
+      - src/inferno/vllm_remote.py
+      - src/inferno/study.py
+      - src/inferno/hardening.py
+      - tests/test_artifact_contract.py
+      - tests/test_vllm_remote.py
+      - tests/test_study.py
+      - .inferno/contracts/artifacts/manifest.v1.schema.json
+      - artifacts/runs/p10-tensorrtllm_t4-smoke-r01-20260702T161929Z-9449e7f9/**
+      - artifacts/studies/tensorrtllm_t4_smoke/**
+      - artifacts/compare/engine-configuration-20260702T162232Z/**
+    forbidden_paths:
+      - strict engine-only claims
+      - live router endpoints
+      - dashboards
+      - cloud control plane
+      - literal SSH targets, usernames, hostnames, private IPs, tokens, or private prompts
+  - id: P10-INTEGRATE
+    title: Integrate P10 status and evidence
+    owner_role: integrator
+    state: INTEGRATED
+    owned_paths:
+      - INFERNO_MAP.md
+      - .inferno/phase_state.yaml
+      - .inferno/taskboard.yaml
+      - .inferno/adr/ADR-0003-p10-tensorrtllm-workloads.md
+      - .inferno/handoffs/P10-TENSORRTLLM-WORKLOADS.yaml
+    forbidden_paths:
+      - strict engine-only claims involving TensorRT-LLM
+      - live router endpoints
+      - dashboards
+      - cloud control plane
+      - literal SSH targets, usernames, hostnames, private IPs, tokens, or private prompts
+  - id: P11-GOVERNANCE
+    title: Authorize GPU-aware local browser dashboard scope
+    owner_role: integrator
+    state: LOCAL_GATES_PASSED
+    owned_paths:
+      - AGENTS.md
+      - INFERNO_MAP.md
+      - .inferno/phase_state.yaml
+      - .inferno/taskboard.yaml
+      - .inferno/policies/**
+      - .inferno/adr/ADR-0004-p11-dashboard.md
+    forbidden_paths:
+      - literal SSH targets, usernames, hostnames, private IPs, tokens, or private prompts
+      - cloud control plane
+      - public live endpoint
+  - id: P11-OLLAMA-ENGINE
+    title: Ollama deployment-profile engine config and contract support
+    owner_role: implementation_specialist
+    state: LOCAL_GATES_PASSED
+    owned_paths:
+      - configs/engines/ollama.json
+      - configs/workloads/ollama_smoke.yaml
+      - configs/study/ollama_smoke.yaml
+      - src/inferno/artifact_contract.py
+      - src/inferno/study.py
+      - src/inferno/vllm_remote.py
+      - tests/test_artifact_contract.py
+      - tests/test_study.py
+      - tests/test_vllm_remote.py
+      - .inferno/contracts/artifacts/**
+    forbidden_paths:
+      - strict engine-only claims involving Ollama
+      - model weights
+      - literal SSH targets, usernames, hostnames, private IPs, tokens, or private prompts
+  - id: P11-DASHBOARD-BACKEND
+    title: Local dashboard API, GPU compatibility, and sequential job runner
+    owner_role: implementation_specialist
+    state: LOCAL_GATES_PASSED
+    owned_paths:
+      - src/inferno/dashboard/**
+      - src/inferno/cli.py
+      - Makefile
+      - tests/test_dashboard.py
+      - pyproject.toml
+      - uv.lock
+    forbidden_paths:
+      - cloud control plane
+      - public live endpoint
+      - live router
+      - literal SSH targets, usernames, hostnames, private IPs, tokens, or private prompts
+  - id: P11-DASHBOARD-FRONTEND
+    title: React/Vite operator dashboard
+    owner_role: implementation_specialist
+    state: LOCAL_GATES_PASSED
+    owned_paths:
+      - web/dashboard/**
+    forbidden_paths:
+      - committed SSH targets or credentials
+      - fake readiness claims
+      - cloud control plane

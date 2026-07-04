@@ -1,0 +1,212 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "collected_at_unix_ns": {
+      "minimum": 1,
+      "title": "Collected At Unix Ns",
+      "type": "integer"
+    },
+    "contract_version": {
+      "const": "inferno.artifacts.v1",
+      "title": "Contract Version",
+      "type": "string"
+    },
+    "gpu_memory_total_mib": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Gpu Memory Total Mib"
+    },
+    "gpu_memory_total_mib_missing_reason": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Gpu Memory Total Mib Missing Reason"
+    },
+    "gpu_memory_used_mib": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Gpu Memory Used Mib"
+    },
+    "gpu_memory_used_mib_missing_reason": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Gpu Memory Used Mib Missing Reason"
+    },
+    "gpu_power_watts": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Gpu Power Watts"
+    },
+    "gpu_power_watts_missing_reason": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Gpu Power Watts Missing Reason"
+    },
+    "gpu_temperature_c": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Gpu Temperature C"
+    },
+    "gpu_temperature_c_missing_reason": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Gpu Temperature C Missing Reason"
+    },
+    "gpu_utilization_percent": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Gpu Utilization Percent"
+    },
+    "gpu_utilization_percent_missing_reason": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Gpu Utilization Percent Missing Reason"
+    },
+    "host_cpu_percent": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Host Cpu Percent"
+    },
+    "host_cpu_percent_missing_reason": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Host Cpu Percent Missing Reason"
+    },
+    "host_rss_mib": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Host Rss Mib"
+    },
+    "host_rss_mib_missing_reason": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Host Rss Mib Missing Reason"
+    },
+    "run_id": {
+      "title": "Run Id",
+      "type": "string"
+    },
+    "sample_index": {
+      "minimum": 0,
+      "title": "Sample Index",
+      "type": "integer"
+    },
+    "schema_version": {
+      "const": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "source": {
+      "minLength": 1,
+      "title": "Source",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "contract_version",
+    "run_id",
+    "sample_index",
+    "collected_at_unix_ns",
+    "source"
+  ],
+  "title": "TelemetrySample",
+  "type": "object"
+}

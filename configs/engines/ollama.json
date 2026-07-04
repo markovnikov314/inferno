@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "engine": "ollama",
+  "container_name": "inferno-p11-ollama",
+  "port": 11434,
+  "image": "ollama/ollama@sha256:f12b1421172ed0e74159ddc87094f360a20836d5cac7fd395d302bf09cff109c",
+  "image_tag_hint": "latest linux/amd64 manifest resolved 2026-07-03",
+  "version_command": ["ollama", "--version"],
+  "command_prefix": ["serve"],
+  "docker_args": [],
+  "env": [],
+  "health_paths": ["/api/version", "/v1/models"],
+  "request_stream_options": false,
+  "served_model_name": "qwen3.5:2b",
+  "model": {
+    "id": "qwen3.5:2b",
+    "revision": "ollama-library-tag-qwen3.5-2b",
+    "tokenizer_id": "ollama:qwen3.5:2b",
+    "tokenizer_revision": "ollama-library-tag-qwen3.5-2b",
+    "tokenizer_format": "ollama_embedded",
+    "weight_format": "ollama",
+    "weight_precision": "ollama_auto"
+  },
+  "launch_args": []
+}

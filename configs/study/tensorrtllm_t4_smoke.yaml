@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "study_id": "tensorrtllm_t4_smoke",
+  "study_type": "engine_configuration_comparison",
+  "engines": ["tensorrtllm_t4"],
+  "phase": "P10",
+  "environment_block_id": "p10_tensorrtllm_t4_profile_block_001",
+  "run_order_seed": 101011,
+  "run_order": [
+    {"engine": "tensorrtllm_t4", "repeat_index": 1}
+  ],
+  "workload_config": "configs/workloads/tensorrtllm_t4_smoke.yaml",
+  "repeats": 1,
+  "telemetry_cadence_seconds": 0.5,
+  "low_sample_completed_requests": 1,
+  "artifacts_dir": "artifacts/studies/tensorrtllm_t4_smoke"
+}

@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "workload_id": "profile_local",
+  "prompt_template_id": "profile-local-chat-v1",
+  "seed": 6101,
+  "prompt": "Explain GGUF quantization in one concise sentence.",
+  "arrival_model": "closed_loop",
+  "cache_state": "cold_per_run",
+  "warmup": {
+    "requests": 0
+  },
+  "measurement": {
+    "requests": 1,
+    "max_runtime_seconds": 300
+  },
+  "sampling": {
+    "temperature": 0,
+    "top_p": 1,
+    "max_tokens": 96
+  },
+  "retry_policy": "none",
+  "failure_policy": "fail_run"
+}

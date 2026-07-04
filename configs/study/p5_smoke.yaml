@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "study_id": "p5_smoke",
+  "study_type": "strict_engine_comparison",
+  "engines": ["vllm", "sglang"],
+  "phase": "P5",
+  "environment_block_id": "p5_research_core_block_001",
+  "run_order_seed": 55101,
+  "run_order": [
+    {"engine": "sglang", "repeat_index": 1},
+    {"engine": "vllm", "repeat_index": 1},
+    {"engine": "vllm", "repeat_index": 2},
+    {"engine": "sglang", "repeat_index": 2},
+    {"engine": "sglang", "repeat_index": 3},
+    {"engine": "vllm", "repeat_index": 3}
+  ],
+  "workload_config": "configs/workloads/p5_smoke.yaml",
+  "repeats": 3,
+  "telemetry_cadence_seconds": 0.5,
+  "low_sample_completed_requests": 3,
+  "artifacts_dir": "artifacts/studies/p5_smoke"
+}

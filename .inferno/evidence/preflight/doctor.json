@@ -1,0 +1,31 @@
+{
+  "checks": [
+    {
+      "details": {
+        "executable": "C:\\Users\\[REDACTED]\\OneDrive\\Documents\\inferno\\.venv\\Scripts\\python.exe"
+      },
+      "message": "Python 3.13.1",
+      "name": "python",
+      "status": "ok"
+    },
+    {
+      "details": {
+        "path": "C:\\Python312\\Scripts\\uv.EXE"
+      },
+      "message": "uv is available",
+      "name": "uv",
+      "status": "ok"
+    },
+    {
+      "details": {
+        "missing": [],
+        "root": "C:\\Users\\[REDACTED]\\OneDrive\\Documents\\inferno"
+      },
+      "message": "pyproject.toml and uv.lock are present",
+      "name": "project_lock",
+      "status": "ok"
+    }
+  ],
+  "schema_version": 1,
+  "status": "ok"
+}

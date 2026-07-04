@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "workload_id": "ollama_smoke",
+  "prompt_template_id": "p11-ollama-smoke-chat-v1",
+  "seed": 11001,
+  "prompt": "Explain local model serving in one concise sentence.",
+  "request_rate_rps": 0.1,
+  "arrival_model": "closed_loop",
+  "concurrency": 1,
+  "max_in_flight": 1,
+  "prompt_target": {
+    "unit": "chars",
+    "p50": 52,
+    "p95": 52
+  },
+  "output_target": {
+    "unit": "tokens",
+    "p50": 24,
+    "p95": 48
+  },
+  "context_length": 2048,
+  "cache_state": "cold_per_run",
+  "cache_policy": "ollama_default",
+  "warmup": {
+    "requests": 0
+  },
+  "measurement": {
+    "requests": 1,
+    "max_runtime_seconds": 600,
+    "timeout_seconds": 600
+  },
+  "streaming": true,
+  "sampling": {
+    "temperature": 0,
+    "max_tokens": 64
+  },
+  "timeout_seconds": 600,
+  "retry_policy": "none",
+  "failure_policy": "fail_run",
+  "quality_requirement": {
+    "type": "non_empty_text"
+  },
+  "cost_metadata": {
+    "status": "UNAVAILABLE",
+    "reason": "local Ollama deployment-profile cost not supplied"
+  },
+  "runtime_knobs": {
+    "deployment_profile": "ollama-docker-gpu",
+    "openai_compatibility": true,
+    "default_model": "qwen3.5:2b"
+  }
+}

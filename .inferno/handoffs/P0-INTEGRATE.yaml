@@ -1,0 +1,35 @@
+task_id: P0-INTEGRATE
+phase: P0
+owner_role: integrator
+base_commit: unborn-branch-no-commit
+head_commit: working-tree
+owned_paths:
+  - AGENTS.md
+  - INFERNO_MAP.md
+  - .inferno/**
+forbidden_paths: []
+commands:
+  - command: uv sync --all-groups --frozen
+    exit_code: 0
+    output_log: .inferno/evidence/commands/P0-uv-sync.log
+  - command: make doctor
+    exit_code: 0
+    output_log: .inferno/evidence/commands/P0-make-doctor.log
+  - command: INFERNO_GPU_SSH=[REDACTED] make doctor-gpu
+    exit_code: 0
+    output_log: .inferno/evidence/commands/P0-make-doctor-gpu.log
+  - command: make test
+    exit_code: 0
+    output_log: .inferno/evidence/commands/P0-make-test.log
+  - command: git diff --check
+    exit_code: 0
+    output_log: .inferno/evidence/commands/P0-git-diff-check.log
+  - command: git diff --cached --check
+    exit_code: 0
+    output_log: .inferno/evidence/commands/P0-git-diff-cached-check.log
+artifacts:
+  - .inferno/evidence/preflight/doctor.json
+  - .inferno/evidence/preflight/doctor-gpu.json
+limitations:
+  - P0 creates no serving-engine, benchmark, planner, router, or dashboard code.
+next_task: P1

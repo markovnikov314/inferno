@@ -1,0 +1,35 @@
+task_id: P0-VERIFY
+phase: P0
+owner_role: independent_verifier
+base_commit: unborn-branch-no-commit
+head_commit: working-tree
+owned_paths:
+  - .inferno/handoffs/P0-VERIFY.yaml
+forbidden_paths:
+  - src/**
+  - tests/**
+  - INFERNO_MAP.md
+  - .inferno/phase_state.yaml
+  - .inferno/taskboard.yaml
+commands:
+  - command: uv sync --all-groups --frozen
+    exit_code: 0
+    output_log: verifier-read-only
+  - command: C:\msys64\usr\bin\make.exe doctor
+    exit_code: 0
+    output_log: verifier-read-only
+  - command: C:\msys64\usr\bin\make.exe test
+    exit_code: 0
+    output_log: verifier-read-only
+  - command: uv run ruff check .
+    exit_code: 0
+    output_log: verifier-read-only
+  - command: git diff --check
+    exit_code: 0
+    output_log: verifier-read-only
+artifacts:
+  - .inferno/evidence/preflight/doctor-gpu.json
+limitations:
+  - Verifier did not rerun live GPU SSH because INFERNO_GPU_SSH was not present in its inherited environment.
+  - Initial verifier finding about untracked files was resolved by staging the P0 tree and adding a cached diff check.
+next_task: P0-INTEGRATE

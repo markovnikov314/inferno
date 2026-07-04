@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "workload_id": "tensorrtllm_t4_smoke",
+  "prompt_template_id": "p10-tensorrtllm-t4-smoke-v1",
+  "seed": 10102,
+  "prompt": "Explain TensorRT-LLM serving in one concise sentence.",
+  "request_rate_rps": 0.1,
+  "arrival_model": "closed_loop",
+  "concurrency": 1,
+  "max_in_flight": 1,
+  "prompt_target": {
+    "unit": "chars",
+    "p50": 55,
+    "p95": 55
+  },
+  "output_target": {
+    "unit": "tokens",
+    "p50": 16,
+    "p95": 24
+  },
+  "context_length": 160,
+  "cache_state": "cold_per_run",
+  "cache_policy": "no_prefix_reuse",
+  "warmup": {
+    "requests": 0
+  },
+  "measurement": {
+    "requests": 1,
+    "max_runtime_seconds": 300,
+    "timeout_seconds": 300
+  },
+  "streaming": false,
+  "sampling": {
+    "temperature": 0,
+    "top_p": 1,
+    "max_tokens": 24
+  },
+  "timeout_seconds": 300,
+  "retry_policy": "none",
+  "failure_policy": "fail_run",
+  "quality_requirement": {
+    "type": "non_empty_text"
+  },
+  "cost_metadata": {
+    "status": "UNAVAILABLE",
+    "reason": "no dated user-provided TensorRT-LLM T4 candidate price"
+  },
+  "runtime_knobs": {
+    "backend": "llm_api",
+    "tensor_parallel_size": 1,
+    "build_max_batch_size": 1,
+    "build_max_seq_len": 160,
+    "tensorrt_llm_version": "0.11.0",
+    "target_gpu_architecture": "Turing/SM75"
+  }
+}
