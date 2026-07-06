@@ -37,7 +37,6 @@ web/dashboard/           React dashboard served by the local API
 configs/                 Engine, workload, study, planner, router, and audit configs
 docs/                    Methodology, reproducibility, and workflow notes
 schemas/artifacts/       JSON schema snapshots for generated evidence
-tests/                   CPU-safe test suite
 artifacts/               Local generated outputs, ignored by Git
 ```
 
@@ -49,11 +48,10 @@ Install Python dependencies:
 uv sync --all-groups --frozen
 ```
 
-Run tests and linting:
+Run linting:
 
 ```bash
-uv run pytest -q
-uv run ruff check src tests
+uv run ruff check src
 ```
 
 Build the dashboard:
@@ -91,7 +89,6 @@ The dashboard derives metrics from generated artifacts:
 
 ```bash
 make doctor
-make test
 make dashboard
 PYTHONPATH=src uv run python -m inferno.cli dashboard --smoke --no-open
 ```

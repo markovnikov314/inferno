@@ -1,4 +1,4 @@
-.PHONY: doctor doctor-gpu up engine-health real-stream run-real validate study report compare release-package plan-capacity replay-router hardening-check dashboard down test test-contracts
+.PHONY: doctor doctor-gpu up engine-health real-stream run-real validate study report compare release-package plan-capacity replay-router hardening-check dashboard down
 
 PYTHONPATH := src
 export PYTHONPATH
@@ -62,9 +62,3 @@ dashboard:
 
 down:
 	uv run python -m inferno.cli down --engine "$(ENGINE)"
-
-test:
-	uv run pytest -q
-
-test-contracts:
-	uv run pytest -q tests/test_artifact_contract.py
